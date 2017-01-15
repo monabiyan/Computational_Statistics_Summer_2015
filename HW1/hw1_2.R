@@ -1,0 +1,10 @@
+v1=c(2:6)
+v1
+m1=matrix(1:25,nrow=5)
+m1
+m1v1=m1%*%v1
+m1v1
+v1m1=v1%*%m1
+v1m1
+m1trm1=m1%*%t(m1)
+m1trm1

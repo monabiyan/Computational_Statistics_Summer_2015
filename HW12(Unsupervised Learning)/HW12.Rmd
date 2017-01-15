@@ -1,0 +1,239 @@
+---
+title: "Homework 7 Solution"
+author: "Mohsen Nabian"
+date: "7/09/2015"
+output: pdf_document
+---
+
+Using a high-dimensional dataset of your choice, perform a factor analysis and clustering and interpret the
+results. You may use, for instance, the datasets inside the psych package, such as bfi (25 personality items
+thought to boil down to a few core personality types) or iqitems (14 scores that are thought to boil down to
+a few core mental skills), or anything else you can find. (Load the data using, for instance, data(bfi) after
+loading the psych package; you may need to clean it a bit first with na.omit() to remove the observations
+with na items, or else impute those missing items.)
+For the factor analysis, you may use any of the methods covered in the lesson - they should all produce
+similar results, though princomp and prcomp might be simplest. You don't have to interpret everything, say,
+fa() outputs, which is a lot of stuff - easier to use str() to examine the output of your function and find
+the quantities you want.
+
+
+Q1)  After running your factor analysis or PCA, be sure to discuss and interpret your output:
+
+1. Examine the factor eigenvalues or variances (or the sdev or standard deviations as reported by prcomp
+or princomp, which you then need to square to get the variances). Plot these in a scree plot and use
+the "elbow" test to guess how many factors one should retain. What proportion of the total variance
+does your subset of variables explain?
+2. Examine the loadings of the factors on the variables (sometimes called the "rotation" in the function
+output) - ie, the projection of the factors on the variables - focusing on just the first one or two factors.
+Sort the variables by their loadings, and try to interpret what the first one or two factors "mean." This
+may require looking more carefully into the dataset to understand exactly what each of the variables
+were measuring. You can find more about the data in the psych package using ?psych or visiting
+http://personality-project.org/ .
+
+
+Solution:
+
+Factor analysis proceadure:
+
+1)Standardize the variables
+2)Create the covariance matrix
+3)Find the eigenvectors and eigenvalues for that matrix.
+4)Choose how many of them we want to keep and analyze.
+
+```{r}
+
+library(psych)  #have some data as well as some machine learning functions like fa()
+data(bfi)
+data(bfi.dictionary)
+bfi.dictionary
+bfi_data_not_scaled <- na.omit(bfi) 
+varnames<-names(bfi_data_not_scaled)    #keeping the names to use later
+```
+But we need to linearly scale the data into the same range. To do this, I write the following function.
+
+```{r}  
+linMap <- function(DF, from, to)   #linear mapping
+{
+ 
+  for (i in 1:ncol(DF))
+  {
+    x<-DF[,i]
+    DF[,i]<-((x - min(x)) / max(x - min(x))) * (to - from) + from
+    
+  }
+ 
+  return(DF)
+}
+```
+
+I will scale data linearly in [0,100]
+
+```{r}
+bfi_data<-linMap(bfi_data_not_scaled,0,100)  #normalized in the scale of -100, 100
+
+names(bfi_data)<-varnames
+dim(bfi_data)
+head(bfi_data)
+tail(bfi_data)
+```
+
+now factor analysis:
+
+```{r}
+eigenm <- eigen(cov(bfi_data))      # Calculating Eigen Values and Eigne Vectors
+varnames<-names(bfi_data)
+
+################ First Factor
+eigen1 <- eigenm$vectors[,1]
+factor1<-data.frame(varnames[order(eigen1)],eigen1[order(eigen1)]) # making a data frame putting data in the order of coefficients magnitude.
+names(factor1)<-c("variable","coeff")
+head(factor1)
+################ Second Factor
+eigen2 <- eigenm$vectors[,2]
+factor2<-data.frame(varnames[order(eigen2)],eigen2[order(eigen2)])
+names(factor2)<-c("variable","coeff")
+head(factor2)
+################ Third Factor
+eigen3 <- eigenm$vectors[,3]
+factor3<-data.frame(varnames[order(eigen3)],eigen3[order(eigen3)])
+names(factor3)<-c("variable","coeff")
+head(factor3)
+################ Forth Factor
+eigen4 <- eigenm$vectors[,4]
+factor4<-data.frame(varnames[order(eigen4)],eigen4[order(eigen4)])
+names(factor4)<-c("variable","coeff")
+head(factor4)
+#####################
+################ 5th Factor
+eigen5 <- eigenm$vectors[,5]
+factor5<-data.frame(varnames[order(eigen5)],eigen5[order(eigen5)])
+names(factor5)<-c("variable","coeff")
+head(factor5)
+################ 6th Factor
+eigen6 <- eigenm$vectors[,6]
+factor6<-data.frame(varnames[order(eigen6)],eigen6[order(eigen6)])
+names(factor6)<-c("variable","coeff")
+head(factor6)
+################ 7th Factor
+eigen7 <- eigenm$vectors[,7]
+factor7<-data.frame(varnames[order(eigen7)],eigen4[order(eigen7)])
+names(factor7)<-c("variable","coeff")
+head(factor7)
+#####################
+############Eigen Values
+eigen_value<-eigenm$values
+plot(eigen_value,type="b")
+```
+So based on the "Elbow" rule, we would pick 7 factors as our prinipals and assume the rest as noises.
+
+Looking further in factor 1: 
+```{r}
+factor1
+plot(factor1)
+```
+
+Factor 1: High in E4 and E2
+That means peoples personality is dominantly dependent on the factor that wether they are socail and make friends or they are not good at socializing.
+
+
+```{r}
+factor2
+plot(factor2)
+```
+Factor 2: 
+Gender in this facor plays a dominant role. That means gender could paly a deteministic role in people's personality characterizations. 
+```{r}
+factor3
+plot(factor3)
+```
+Factor3: 
+In this factor also gender plays the dominant role.
+
+Summary: In this analysis we might say peoples personality Questionnaire highly revolves around the gender and social skills questions and these are key questions. 
+
+
+########################################
+
+Q2)   Next perform a cluster analysis of the same data.
+3. First use k-means and examine the centers of the first two or three clusters. How are they similar to
+and different from the factor loadings of the first couple factors?
+4. Next use hierarchical clustering. Print the dendrogram, and use that to guide your choice of the number
+of clusters. Use cutree to generate a list of which clusters each observation belongs to. Aggregate
+the data by cluster and then examine those centers (the aggregate means) as you did in (3). Can you
+interpret all of them meaningfully using the methods from (3) to look at the centers?
+5. From the factor and cluster analysis, what can you say more generally about what you have learned
+about your data?
+
+
+
+
+```{r}
+hout <- hclust(dist(bfi_data),method="complete") #or method="average" or...
+plot(hout,labels=FALSE)
+
+#To get the cluster assignments, we just apply cutree to the hclust output,
+#choose either the height to cut it at, or the number of clusters:
+#as.vector(cutree(hout,h=420)) # cut the plot at height=21
+abline(a=420,b=0,col="red")
+
+```
+
+According to the plot,having 3 clusters seems to be reasonable. Lets do the K-means with 3 clusters:
+
+```{r}
+set.seed(100)
+
+kout <- kmeans(bfi_data,centers=3,nstart=30)  #means 30 times change the random initialization of the clustring
+                                              # and choose the best one that has minimum                                                      average distance
+
+centroids <- kout$centers
+
+topvars_centroid1 <- centroids[1,order(centroids[1,])]
+topvars_centroid2 <- centroids[2,order(centroids[2,])]
+topvars_centroid3 <- centroids[3,order(centroids[3,])]
+
+
+
+topvars_centroid1
+topvars_centroid2
+topvars_centroid3
+
+```
+
+cluster 1 and 3 are specified for men. and cluster 2 is for women. 
+according to cluster 1, A4, A2 A5 and E4,A3 are high for men.
+That means these men are:
+  1)loving children
+  2)Inquire about others' well-being
+  3)Make people feel at ease
+  4)Make friends easily
+  5)Know how to comfort others
+These Men are so social and caring about others.
+
+
+however, O4 and O1 are high in women.
+These women are:
+  1) Spending time reflecting on things
+  2) full of ideas
+apparently  alot of these women are passionate about their future, thinking alot and not so social.
+
+The 3rd cluster which is again for men:
+
+They are high in O4 and significantly less in A4,A2 and A5
+These means that these men are 
+  1)full of ideas
+  2) Less social
+These men are more serious about the life. 
+
+
+Summary:
+
+Factor analysis and Cluster analysis in this study provides the fact that people's personality could be divided majorly based on their gender and social skills.
+Those having the same sex and social skills would be having almost the same other personality characteristics. 
+Also  cluster analysis, and the hierarchy plot, demonstrated us that socialability in men are forming their other characteristics which is not the case in women as much. 
+
+
+
+
+
+

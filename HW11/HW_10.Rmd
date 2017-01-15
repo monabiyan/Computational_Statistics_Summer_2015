@@ -1,0 +1,141 @@
+---
+title: "Homework 10 Solution"
+author: "Mohsen Nabian"
+date: "8/1/2015"
+output: pdf_document
+---
+
+1. Using the anes_2008tr.csv dataset in Course Resources, model vote-rep (whether the respondent voted Republican in the last election) as a function of age, race, income, and ideology.
+
+```{r}
+anes_2008tr <- read.csv("C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/HW8/anes_2008tr.csv",sep=",",header=TRUE,stringsAsFactors=FALSE)
+
+```
+
+
+
+a. What's the probability of voting Republican for a white person of average age, income, and ideology?
+
+```{r}
+age_mean=mean(anes_2008tr$age)
+income_mean=mean(anes_2008tr$income)
+ideology_mean=mean(anes_2008tr$ideology_con)
+RaceWhite<-1
+lr1 <- glm(vote_rep ~ age + income + ideology_con+race_white,data=anes_2008tr,family="binomial")
+
+summary(lr1)
+# The nice thing about glm is that it automotically delete the rows with NA values. Here. 783 rows were not counted as mentioned in the summary.
+B0=as.numeric((lr1$coef)[1])
+B1=as.numeric((lr1$coef)[2])
+B2=as.numeric((lr1$coef)[3])
+B3=as.numeric((lr1$coef)[4])
+B4=as.numeric((lr1$coef)[5])
+H=exp(B0+B1*age_mean+B2*income_mean+B3*ideology_mean+B4*RaceWhite)
+prob_vote_rep_white<-(H)/(1+H)
+prob_vote_rep_white
+```
+
+b. What's the change in probability of voting Republican for a person of average age, income, and ideology
+who switches from black to white?
+```{r}
+RaceBlack=0
+
+RaceWhite=1
+
+odd_ratio_white=exp(B0+B1*age_mean+B2*income_mean+B3*ideology_mean+B4*RaceWhite)
+
+odd_ratio_black=exp(B0+B1*age_mean+B2*income_mean+B3*ideology_mean+B4*RaceBlack)
+
+prob_vote_rep_white<-(odd_ratio_white)/(1+odd_ratio_white)
+
+prob_vote_rep_black<-(odd_ratio_black)/(1+odd_ratio_black)
+
+diff<-prob_vote_rep_white-prob_vote_rep_black
+
+diff
+
+```
+
+
+c. Using the e formula from the lesson, what's the effect on the odds ratio of shifting from black to white?
+```{r}
+diff<-odd_ratio_white-odd_ratio_black
+diff
+```
+
+d. What has a greater effect on voting Republican: an age increase of 50 years, or an incease of one income
+bracket?
+
+lets caclculate based on the odd ratio which make the calculations simpler. As odd ratio increases, The P(y=1) increases. 
+
+one unit increase in x_i is equivalent to multiplying the odd with exp(Bi),two units increase in xi is equivalent to multiplying the odd with exp(2*Bi)... So
+```{r}
+age_increase_factor<-exp(50*B1)
+age_increase_factor
+income_increase_factor<-exp(1*B2)
+income_increase_factor
+
+```
+So one unit increase in income has higher effect that 50 years of age increase in the probability of a person vote for a republican
+
+
+e. Now run the regression with all the other variables in anes_2008tr (except for voted). How do your
+coefficients change? What do you think explains any coefficient that became or lost significance?
+```{r}
+
+reg <- glm(vote_rep ~ age + income + ideology_con+ race_white+ gender_male+partyid_rep,             data=anes_2008tr,family="binomial")
+summary(lr1)
+summary(reg)
+```
+In the full regression, 'age' regains the significance, and gender_male is not significant. That means gender in fact has no effect on the vote. 'income','ideology' and 'race' still have their significance but have lower coefficients. Party-id has also significant effect. 
+'age' and 'income' got less significant. 'income' could be a function of other variables like, age and race and that is why it loses its significance. 
+
+
+
+
+2. Construct a simulated y variable with 100 observations where each observation (year) is a function of
+the previous observation: specifically, yt is 80% yt???1 + 20% random noise with mean 0 and sd 1 (and
+y1 = 1). Estimate an ARIMA model using auto.arima() from the forecast package and interpret
+the results, in particular the ARIMA(p,d,q) numbers and the coefficients reported, if any. What do you
+think is going on here?
+
+```{r}
+
+library(forecast)
+yy=0
+yy[1]=1
+for (i in 2:100)
+{
+ yy[i]<-0.8*yy[i-1]+0.2*rnorm(n=1,mean=0,sd=1)
+}
+auto.arima(yy)
+
+```
+
+The auto arima sayas AR=1, Differencing=0, MA=0
+that means y(t) is only dependent to y(t-1) and not more lags. which corresponds to our expectations.
+Moreover, 0 differencing is that y is not a time series variable which also make sense since there is no time dependency for y.
+
+Finally 0 for MA means there is no moving average. That is true beacuase every element depends on the preivious element as well as external noises. 
+
+The results also suggests 0.8627 for the coefficient for y(t-1) which is close to 0.8 that we chose in our formula.
+
+3. Find some existing data that either has temporal or bindary dependent variable data and run a ARIMA
+or logit model on it and interpret the results in detail. You can use data from the previous assignment,
+and you can construct a binary variable out of some existing continuous variable if you like.
+
+
+```{r}
+mydata <- read.csv("http://www.ats.ucla.edu/stat/data/binary.csv")
+## view the first few rows of the data
+head(mydata)
+admission_reg<- glm(admit ~ gre + gpa + rank ,data=mydata ,family="binomial")
+summary(admission_reg)
+
+```
+
+
+accordig to the result, 'rank' plays an important role on acceptance of the applicants.Of course lower rank means more qualified applicant and thats why we see negetive coefficient.
+However, GRE and GPA are important but less significant.1 reason that Gre coefficient is very low is that the gre scale is 100-800 and much higher to rank and gpa. 
+
+

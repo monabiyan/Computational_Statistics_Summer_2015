@@ -1,0 +1,21 @@
+
+BODY {
+	color: black;
+	background-color: #EEFFFA; /* cool minty green */
+}
+
+H1.title {
+	color: maroon;
+	background-color: transparent;
+	text-align: center;
+}
+
+UL.foo {
+	list-style-type: none;
+}
+
+SPAN.new {
+	color: black;
+	background-color: yellow;
+	font-weight: bold;
+}

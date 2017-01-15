@@ -1,0 +1,241 @@
+---
+title: "Homework 5 Solution"
+author: "Mohsen Nabian"
+date: "6/18/2015"
+output: html_document
+---
+
+Q1)
+
+You hypothesize that the average person is smarter than Sarah Palin. You know her IQ is 100.
+You give an IQ test to 100 randomly selected people, and get a mean of 104 and standard deviation
+of 22. Please show your work for each question.
+
+a. What is your null hypothesis?
+b. What is your research hypothesis?
+c. What is your test statistic?
+d. Do you prefer a one-tailed or two-tailed test here, and why?
+e. What is your ?? and threshold (t statistic) value or values for your rejection region? (Whatever ?? you
+prefer is fine, just be sure to state it and explain why you chose it.)
+f. Can you reject the null under a one-tailed test?
+g. Can you reject the null under a two-tailed test?
+h. What is your 95% confidence interval?
+i. What is the p-value for your test results?
+
+
+ans: 
+
+
+
+population= The IQ of world population.(or the US population) 
+
+$$ Sample:    n=100, \bar{x}=104, s=22, se=\frac{s}{\sqrt{n}} =2.2 $$
+
+Null Hypothesis: miu_population=100
+Research hypothesis:  miu_population> 100.       if we can reject the null hypothesis for 100, we would defenitly have rejected any null hypothesis for
+miu_population=99,98,97,.....   
+
+$$ Test Statistics=\frac{\bar{x}-\mu_{population}}{se} $$
+$$ Test Statistics\frac{104-100}{2.2}=1.82$$
+
+According to the hypothesis, it is sufficient to do the "one-tailed test".However, I would prefer to do the "two-tailed test"" first here to be more conservative.  Once we rejected the Null hypothesis for the two tailed test, we would be assured to get the same result for one-tailed test.
+
+we will choose alpha=0.05 as one of the most common values for alpha that is quite an adequately conservative value.
+Error Type I=0.05 or p-value=0.95
+Now lets calculate the threshold(t statistic) values for the rejection region:
+
+
+```{r}
+lower<-qt(0.025,99)
+print(lower)
+upper<-qt(0.975,99)
+print(upper)
+```
+
+
+So since:
+$$ -1.98<1.82<1.98 $$
+We are NOT able to reject the null hypothesis with the specifications we have defined.(p-valu=0.95 and two_tailed)
+Lets try the less conservative one-tailed Test that is sufficient for this hypothesis and lets keep p-value as 0.95:
+the upper threshold is calculated in following:
+
+```{r}
+upper<-qt(0.95,99)
+print(upper)
+
+```
+
+
+now since the test statistics lies in the rejection area 
+$$ Test statistic=1.82 > upper=1.66$$
+we CAN REJECT the null hypothesis. And we can say "The research hypothesis is approved with error Type1=0.05"
+
+
+ 
+ 
+ Q2) 
+ 
+ You hypothesize that men and women have different skill levels in playing Tetris. To test this,
+you have 50 men and 50 women play the game in a controlled setting. The mean score of the men
+is 1124 with a standard deviation of 200 and the mean score for the women is 1245, also with a
+standard deviation of 200.
+a. Are these scores statistically significantly different? Show your work.
+b. Do you reject your hypothesis or the null? What do you conclude from this experiment?
+
+
+ans:
+ 
+ men sample:  
+ $$ n_1=50, \bar{x}_1=1124, s_1=200, se_1=\frac{s_1}{\sqrt{n_1}} =28.29 $$
+ women sample: 
+ $$ n_2=50, \bar{x}_2=1245, s_2=200, se_2=\frac{s_2}{\sqrt{n_2}} =28.29 $$
+ 
+ Now it is time to find the paramters of the T distribution of the samples: 
+
+  $$Test Statistic= \frac{\bar{x}_2-\bar{x}_1}{se_{diff}} $$
+  $$se_{diff}=\sqrt{(se_1^2+se_2^2)}=40$$  
+  so 
+   $$Test Statistic= \frac{1245-1124}{40}=3.025 $$
+  since n1=n2 and s1=s2, degree of freedom is calcuated as : $$ df=2n-1=99 $$
+Lets assume  Error TypeI =0.05 or p-value=0.95
+Now lets calculate the threshold(t statistic) values for the rejection region:
+
+```{r}
+lower<-qt(0.025,99)
+print(lower)
+upper<-qt(0.975,99)
+print(upper)
+```
+ 
+ Since the test statistics lies on the rejected area, we can reject the Null Hypothesis and accept the Research hypothesis with TypeI error=0.05.
+ So we can conclude that Men and Women have not the same skill level playing Tetris.
+ 
+ 
+ 
+ 
+ 
+ 
+ Q3)
+ 
+ You think drinking the night before an exam might help performance on the exam the next
+morning. To test this, you select 100 of your closest friends, and randomly get 50 of them drunk
+the night before the exam, which you denote the treatment group. The next day, the treatment
+group gets a mean of 78 with a standard deviation of 10 and the control group gets a 75 with a
+standard deviation of 5.
+a. Does the evidence show that drinking helped exam performance?
+
+ans:
+ 
+ the variable is the score.
+ drunk sample:  
+ $$ n_1=50, \bar{x}_1=78, s_1=10, se_1=\frac{s_1}{\sqrt{n_1}} =1.41 $$
+ control sample: 
+ $$ n_2=50, \bar{x}_2=75, s_2=5, se_2=\frac{s_2}{\sqrt{n_2}} =0.71 $$
+ Now it is time to find the paramters of the T distribution of the samples: 
+
+  $$Test Statistic= \frac{\bar{x_2}-\bar{x_1}}{se_{diff}} $$
+  $$se_{diff}=\sqrt{(se_1^2+se_2^2)}=1.58$$
+  so
+   $$Test Statistic= \frac{78-75}{1.58}=1.90 $$
+   Now we need to calculate the degree of freedom (df) as following:
+   
+   $$df=\frac{ (se_{diff})^2 }{\frac{(se_1)^4}{n_1-1}+\frac{(se_2)^4}{n_2-1}} $$
+   $$df=\frac{ (1.58)^2 }{\frac{(1.41)^4}{50-1}+\frac{(0.71)^4}{50-1}}=29 $$
+   
+   Lets assume  Error TypeI =0.05 or p-value=0.95
+   Now lets calculate the threshold(t statistic) values for the rejection region:
+
+```{r}
+lower<-qt(0.025,29)
+print(lower)
+upper<-qt(0.975,29)
+print(upper)
+```
+
+Since the Test Statistics lies on the region:
+$$-2.045<Test statistics=1.90 <2.045$$
+Thus we are NOT able to Reject the null hypothesis and thus we can not claim our reseaarch hypothesis. 
+
+
+
+
+Q4)
+Using data of your choosing (or using simulated data), use R to conduct the following tests, and
+explain the results you get:
+a. A standard one-sample hypothesis test.
+b. A difference-in-means test with independent samples.
+c. A difference-in-means test with dependent samples (ie, a paired t-test).
+d. Manually verify the results in (a) using the mean and sd as calculated by R (ie, you don't have to
+manually calculate the mean or sd by hand!).
+
+Ans: 
+
+a) 
+
+```{r}
+t.test(cars$dist,alternative="two.sided",mu=60)  
+```
+
+So the result indicates that:
+Assuming the Null Hypothesis: mu=60:
+$$P(35.66<\mu<50.30)=0.95 $$
+Since Null miu=60 is out of the interval, the Null Hypothesis is rejected.And a good estimate for miu is 42.98.  
+
+b)
+
+Here the numbers are related to the shor term memory expriment scores for people who are smoker on non-smokers. We want to see if being an smoker would affect the short-term memory. 
+
+```{r}
+nonsmokers = c(18,22,21,17,20,17,23,20,22,21)
+smokers = c(16,20,14,21,20,18,13,15,17,21)
+t.test(nonsmokers,smokers,mu=0,conf=0.95,alternative="two.sided")
+```
+
+So the result indicates that:
+Assuming the Null Hypothesis: differences in average=mu=0:
+$$P(0.163<\mu<5.037)=0.95 $$
+Since miu=0 is out of the interval, the Null Hypothesis is rejected.And a good estimate for miu(mean difference) is 20.1-17.5=2.6" .  
+
+c)
+
+A school athletics has taken a new instructor, and want to test the effectiveness of the new type of training proposed by comparing the average times of 10 runners in the 100 meters. Are below the time in seconds before and after training for each athlete.
+
+Before training: 12.9, 13.5, 12.8, 15.6, 17.2, 19.2, 12.6, 15.3, 14.4, 11.3
+After training: 12.7, 13.6, 12.0, 15.2, 16.8, 20.0, 12.0, 15.9, 16.0, 11.1
+
+
+```{r}
+a = c(12.9, 13.5, 12.8, 15.6, 17.2, 19.2, 12.6, 15.3, 14.4, 11.3)
+b = c(12.7, 13.6, 12.0, 15.2, 16.8, 20.0, 12.0, 15.9, 16.0, 11.1)
+t.test(a,b,mu=0,conf.level = 0.95,paired = TRUE)
+```
+
+So the result indicates that:
+Assuming the Null Hypothesis: differences in average=mu=0:
+$$P(-0.58<\mu<0.48)=0.95 $$
+since the null miu is 0, which lies in the interval, we can not reject the null hypothesis. 
+
+
+d)
+```{r}
+x_bar<-mean(cars$dist)
+print(x_bar)
+s_dev<-sd(cars$dist)
+print(s_dev)
+n<-length(cars$dist)
+print(n)
+se<-s_dev/(sqrt(n))
+print(se)
+miu0<-60
+t<-(x_bar-miu0)/se
+print(t)
+low_intv<-qt(0.025,n-1)
+print(low_intv)
+hig_intv<-qt(0.975,n-1)
+print(hig_intv)
+low_miu_95<-((low_intv)*se)+x_bar
+hig_miu_95<-((hig_intv)*se)+x_bar
+print(low_miu_95)
+print(hig_miu_95)
+```
+As it is seen, the results are the same as part a and the null hypothesis is rejected.

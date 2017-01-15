@@ -1,0 +1,52 @@
+---
+title: "Homework 1 Solution"
+author: "Nick Beauchamp"
+date: "01/10/15"
+output: pdf_document
+---
+
+This is an example of a homework assignment solution.  It is written in RMarkdown, and was knit to PDF.  It is most useful to look at the .Rmd file that produced the PDF.  You may use that .Rmd file as a template for you own homework assignments.
+
+Note that these solutions are incorrect!  Do not just copy these answers as solutions for problem set #1.  
+
+1. 
+
+a. Create two vectors named v1 and v2, where v1 is the sequence of integers from 2 to 6, and v2 is the sequence of integers from 5 to 9.  
+
+```{r}
+v1 <- 1:3
+v2 <- 10:12
+v1
+v2
+```
+
+
+2. 
+
+a. Create a 5 by 5 matrix with the numbers 1 to 25 as its elements, and call it m1.
+
+```{r}
+mat1 <- matrix(1:9,3,3)
+mat1
+```
+
+b. What is m1 times v1?
+
+```{r}
+mat1 %*% v1
+```
+
+
+3. 
+
+```{r fig.width=4, fig.height=3}
+plot(cars)
+```
+
+
+4. 
+
+a. Using latex equation notation in your .Rmd file, write out the quadratic formula, so that in your html file it looks pretty and like the version we all learned in high school. (Eg, see the box in the top right of this wikipedia page: <http://en.wikipedia.org/wiki/Quadratic_equation>.)
+
+$$\frac{\sqrt{10 \pm x^7}}{2 - \alpha}$$
+

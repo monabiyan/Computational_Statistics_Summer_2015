@@ -1,0 +1,284 @@
+---
+title: "Homework 13 Solution"
+author: "Mohsen Nabian"
+date: "8/14/2015"
+output: html_document
+---
+
+Using one or two high-dimensional datasets of your choice, estimate a shrinkage and an SVM model and test them out-of-sample.
+A large number of high-dimensional datasets can be found here: http://archive.ics.uci.edu/ml/datasets.html .
+Be sure to choose those that make your life easier, rather than something that takes a lot of manipulation
+to get into shape. But feel free to use other data or a dataset you have already used, as long as they have
+at least 10 independent variables and a continuous dependent variable (for lasso/ridge) and/or a binary
+dependent variable (for SVM). You can also convert a continous dependent variable to a binary for the SVM
+stage, as we did in the lesson.
+
+
+
+
+
+
+1. Use your dataset with a continuous dependent variable:
+a. Divide your data into two equal-sized samples, the in-sample and the out-sample. Estimate the elastic
+net model using at least three levels of alpha (ie, three positions in between full lasso and full ridge; eg,
+alpha = 0, 0.5, and 1), using cv.glmnet to find the best lambda level for each run. (Remember that
+glmnet prefers that data be in a numeric matrix format rather than a data frame.)
+b. Choose the run (and lambda) with the best results (lowest error), and then test that model out-of-sample
+using the out-sample data.
+c. Compare your out-of-sample results to regular multiple regression: fit the regression model in-sample,
+predict yhat out-of-sample, and estimate the error. Which works better?
+d. Which coefficients are different between the multiple regression and the elastic net model? What,
+if anything, does this tell you substantively about the effects of your independent variables on your
+dependent variable?
+
+
+
+
+
+
+Answer: 
+I used the UCI website and I chose Online News Popularity created 2015.
+The goal is to provide an estimation of how many times  a post of news would be shared?
+
+
+
+Data information:
+
+
+Attribute Information: 
+0. url: URL of the article (non-predictive) 
+1. timedelta: Days between the article publication and the dataset acquisition (non-predictive) 
+2. n-tokens-title: Number of words in the title 
+3. n-tokens-content: Number of words in the content 
+4. n-unique-tokens: Rate of unique words in the content 
+5. n-non-stop-words: Rate of non-stop words in the content 
+6. n-non-stop-unique-tokens: Rate of unique non-stop words in the content 
+7. num-hrefs: Number of links 
+8. num-self-hrefs: Number of links to other articles published by Mashable 
+9. num-imgs: Number of images 
+10. num-videos: Number of videos 
+11. average-token-length: Average length of the words in the content 
+12. num-keywords: Number of keywords in the metadata 
+13. data-channel-is-lifestyle: Is data channel 'Lifestyle'? 
+14. data-channel-is-entertainment: Is data channel 'Entertainment'? 
+15. data-channel-is-bus: Is data channel 'Business'? 
+16. data-channel-is-socmed: Is data channel 'Social Media'? 
+17. data-channel-is-tech: Is data channel 'Tech'? 
+18. data-channel-is-world: Is data channel 'World'? 
+19. kw-min-min: Worst keyword (min. shares) 
+20. kw-max-min: Worst keyword (max. shares) 
+21. kw-avg-min: Worst keyword (avg. shares) 
+22. kw-min-max: Best keyword (min. shares) 
+23. kw-max-max: Best keyword (max. shares) 
+24. kw-avg-max: Best keyword (avg. shares) 
+25. kw-min-avg: Avg. keyword (min. shares) 
+26. kw-max-avg: Avg. keyword (max. shares) 
+27. kw-avg-avg: Avg. keyword (avg. shares) 
+28. self-reference-min-shares: Min. shares of referenced articles in Mashable 
+29. self-reference-max-shares: Max. shares of referenced articles in Mashable 
+30. self-reference-avg-sharess: Avg. shares of referenced articles in Mashable 
+31. weekday-is-monday: Was the article published on a Monday? 
+32. weekday-is-tuesday: Was the article published on a Tuesday? 
+33. weekday-is-wednesday: Was the article published on a Wednesday? 
+34. weekday-is-thursday: Was the article published on a Thursday? 
+35. weekday-is-friday: Was the article published on a Friday? 
+36. weekday-is-saturday: Was the article published on a Saturday? 
+37. weekday-is-sunday: Was the article published on a Sunday? 
+38. is-weekend: Was the article published on the weekend? 
+39. LDA-00: Closeness to LDA topic 0 
+40. LDA-01: Closeness to LDA topic 1 
+41. LDA-02: Closeness to LDA topic 2 
+42. LDA-03: Closeness to LDA topic 3 
+43. LDA-04: Closeness to LDA topic 4 
+44. global-subjectivity: Text subjectivity 
+45. global-sentiment-polarity: Text sentiment polarity 
+46. global-rate-positive-words: Rate of positive words in the content 
+47. global-rate-negative-words: Rate of negative words in the content 
+48. rate-positive-words: Rate of positive words among non-neutral tokens 
+49. rate-negative-words: Rate of negative words among non-neutral tokens 
+50. avg-positive-polarity: Avg. polarity of positive words 
+51. min-positive-polarity: Min. polarity of positive words 
+52. max-positive-polarity: Max. polarity of positive words 
+53. avg-negative-polarity: Avg. polarity of negative words 
+54. min-negative-polarity: Min. polarity of negative words 
+55. max-negative-polarity: Max. polarity of negative words 
+56. title-subjectivity: Title subjectivity 
+57. title-sentiment-polarity: Title polarity 
+58. abs-title-subjectivity: Absolute subjectivity level 
+59. abs-title-sentiment-polarity: Absolute polarity level 
+60. shares: Number of shares (target)
+
+
+1) Preparing in-sample and out-sample data: 
+
+```{r}
+setwd("C:/Users/nabian.m/Desktop")
+
+raw_data<-read.csv("OnlineNewsPopularity.csv",header=TRUE,sep=",",stringsAsFactors=FALSE,strip.white = TRUE, na.strings = c("NA",""))
+#na.omit(raw_data)
+#head(raw_data)
+
+
+dim(raw_data)
+y<-raw_data[,61]
+length(y)
+data<-raw_data[,c(-1,-61)]
+#data<-data[,c(-10:-60)]  #reducing indp. variables
+dim(data)
+for (i in 1:length(data[1,]))
+{
+  data[,i]<-as.numeric(data[,i])
+  data[,i]<-scale(data[,i])[,1]
+}  
+x<-as.matrix(data)
+class(x)
+dim(x)
+set.seed(126)
+train<-sample(1:nrow(x),nrow(x)/2)
+test<-(-train)
+trainx<-x[train,]
+trainy<-y[train]
+testx<-x[test,]
+testy<-y[test]
+```
+
+Now lets do the analysis:
+```{r}
+set.seed(126)
+#install.packages("glmnet")
+library(glmnet)
+lambdalevels <- 10^seq(7,-2,length=100)
+
+cv.lasso.mod_1=cv.glmnet(trainx,trainy,alpha=1,lambda=lambdalevels)
+bestlambda <- cv.lasso.mod_1$lambda.min
+lasso.mod=glmnet(x,y,alpha=1,lambda=lambdalevels)
+predict(lasso.mod, type="coefficients",s=bestlambda)
+plot(cv.lasso.mod_1)
+
+
+
+cv.lasso.mod_half=cv.glmnet(trainx,trainy,alpha=0.5,lambda=lambdalevels)
+bestlambda <- cv.lasso.mod_half$lambda.min
+bestlambda
+lasso.mod=glmnet(x,y,alpha=0.5,lambda=lambdalevels)
+predict(lasso.mod, type="coefficients",s=bestlambda)
+plot(cv.lasso.mod_half)
+
+
+cv.lasso.mod_0=cv.glmnet(trainx,trainy,alpha=0,lambda=lambdalevels)
+plot(cv.lasso.mod_0)
+
+
+
+
+```
+
+For alpha=0.5 with lambda=53.37 we end up to the lowest mean square error and highest number of variables that are shrunk. SO we choose alpha=0.5 at its best lambda.
+
+
+
+```{r}
+yhat.l <- predict(cv.lasso.mod_half$glmnet.fit, s=cv.lasso.mod_half$lambda.min, newx=testx)
+# ^^ note how we give predict() our best lambda.min value to use for prediction
+
+mse.las <- sum((testy - yhat.l)^2)/nrow(testx)
+mse.las
+
+```
+Now lets do the regular regression:
+
+```{r}
+
+lmout <- lm(trainy~trainx)
+lmout$coefficients[is.na(lmout$coefficients)] <- 0
+summary(lmout)
+yhat.r <- cbind(1,testx) %*% lmout$coefficients
+
+head(yhat.r)
+mse.reg <- sum((testy - yhat.r)^2)/nrow(testx)
+mse.reg
+
+```
+with such a data set of 60 indep. variables, it is probable to have over fitting produced in the 
+multiple regression method.
+
+Comparing the error models of Elastic Net(alpha=0.5 ) and multiple regression, we can conclude the elastic net method has been more sucsessful in estimating the out-of-sample data.This could be due to the over-fitting effect that is caused by multiple regression.
+
+
+
+2. Repeat the same process using your dataset with a binary dependent variable:
+a. Divide your data into an in-sample and out-sample as before, and estimate an SVM using at least two
+different kernels and tune to find the best cost level for each.
+b. Chose the kernel and cost with the best results, and then test that model out-of-sample using the
+out-sample data.
+c. Compare your results to a logistic regression: fit the logit in-sample, predict yhat out-of-sample, and
+estimate the accuracy. Which works better?
+d. Can you make any guesses as to why the SVM works better (if it does)? Feel to speculate, or to research
+a bit more the output of svm, the meaning of the support vectors, or anything else you can discover
+about SVMs (no points off for erroneous speculations!).
+
+Answer:
+
+
+we use the same dataset, but we assume one for shares more than 1000 and assume 0 for shares less than 1000.
+```{r}
+y <- ifelse(y>1000,1,0)
+dat <- data.frame(x=x, y=as.factor(y))
+dat0<-cbind(dat[1:100,1:10],y=as.factor(y[1:100]))
+class(dat0)
+dim(dat0)
+
+set.seed(126)
+train<-sample(1:nrow(dat0),nrow(dat0)/2)
+test<-(-train)
+train_dt<-dat0[train,]
+test_dt<-dat0[test,]
+#install.packages("e1071")
+library(e1071)
+costvalues <- 10^seq(-3,2,1)
+tuned.svm <- tune(svm,y~., data=train_dt, ranges=list(cost=costvalues), kernel="linear")
+summary(tuned.svm)
+```
+So our svm is 62% accurate.(although we now it is over valued and the accuracy is less)
+
+Now lets test the svm model with the out of sample data:
+
+```{r}
+yhat <- predict(tuned.svm$best.model,newdata=test_dt)
+
+table(predicted=yhat,truth=test_dt$y)
+sum(yhat==test_dt$y)/length(test_dt$y)
+sum(yhat==rep(0,length(test_dt$y)))/length(test_dt$y)
+
+```
+
+SO we had 44% correct out-of sample response. 
+The result from svm might not be satisfactory since 44% is less than 50%. So if we even randomely choose the y, we would have better chance to be correct:(50>44)
+However the reason of this law value is beacause we had only 100 data in whole with 10 variables. we would expect much better performance with higher amount of data.
+
+
+
+Lets compare to logistic regression:
+```{r}
+reg <- glm(y~.,data=train_dt,family="binomial")
+summary(reg)
+reg$coefficients
+yhat.r <- cbind(1,as.matrix(test_dt[,-11])) %*% reg$coefficients
+yhat.r <- ifelse(yhat.r>0.5,1,0)
+sum(yhat.r==test_dt$y)/length(test_dt$y)
+```
+
+so as we see, by using logistic regression, we can estimate 40%. Still not acceptable, but comparing to svm it is less accurate for the out of sample data.
+
+SVM could be more accuarate since it is a supervised learning while logistic regression is not supervised. ie svm has a one degree of freedom(cost value) to optimize its calculations based on the k fold data.
+
+logistic regression might have over fitting which causes less accurate results.
+svm is more concentrated on finding a seprating curve, however, logistic reg. is focused more on the effect of individual variables.
+
+
+
+
+
+
+
+

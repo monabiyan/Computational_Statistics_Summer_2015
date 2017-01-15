@@ -1,0 +1,777 @@
+---
+title: "Homework 7 Solution"
+author: "Mohsen Nabian"
+date: "7/24/2015"
+output: pdf_document
+---
+1. Describe your substantive interest and the general questions(s) you would like to answer (eg, "Does
+more education cause people to become more liberal?"). Be sure to frame it in a such a way that you
+are proposing a hypothesis (or multiple hypotheses) that might be either confirmed or disproven by the
+results of your analysis.
+
+
+
+It is quite common that people share their questions in the internet hoping for others to answer and 
+this is even more common in computer science that people ask about thier codings or statistical analysis 
+of data.
+In this study I want to explore the parameters that might play role into recieving faster response. 
+In other words, when we post a question, what should be our expectation about the time that the first public answer appears.
+Here, we try to discover the direct effect of differet parameters into this time period.
+I have the following hypothesis:
+1) the question that is more seen is more likely to be answered faster.
+2) the question that is posted later, is more likely to recieve sooner result.(because the computer and internet users are increasing in number evry day and the exposure/day of  online-question are increasing)
+3) Those quetion with more upvotes are more likely to be answer faster.
+4)users with higher reputations  are expected to recieve their answer sooner that those with less reputation. 
+
+
+2. Describe the data set you have found, including its source, its contents, and why it was collected
+originally.
+
+"Stack Exchange" is a sister website of "stack overflow" which is a huge community used mostly for data analysis debates and asking and answering questions in the domain of statistics, data mining and programming in data science. The Website realeases its data in xml format every 3 month. 
+The complete instruction and the data structures are provided in the following link:
+http://meta.stackexchange.com/questions/2677/database-schema-documentation-for-the-public-data-dump-and-sede
+For my study we need to download  and parse 2 XML files:
+a) Posts
+1)Id
+2)PostTypeId (listed in the PostTypes table)
+Question==1
+Answer==2
+3)ParentID (only present if PostTypeId is 2)
+4)CreationDate
+5)Score
+6)ViewCount
+
+b)users
+1)Id
+2)Reputation
+3)UpVotes
+4)DownVotes
+
+
+
+3. What is your dependent variable? Why are you interested in explaining it? What do you hypothesize
+are the major factors that influence or cause it?
+
+dependent variables are as follows:
+  
+Dependent variable: Time duration between a question posted and its first answer is posted.
+I am intersted in exploring the parameters that might play a role in duration of not having any response for a question .Finding effective paramters to lower this period would be of huge importance since social media (Facebook,...) are full of the same kind of interactions.  
+
+4. What are your independent variables, and why have you chosen these? Prior to running your regression,
+what effects do you expect them to have on the dependent variable? Which of these variables do you
+think affect other of the independent variables, and how might that affect your final results?
+
+  1)PostCreationHour   (I am very excited to see at what hour we would be better ask a question to recieve an answer                         soon)
+  2)Reputation         (I expect higher reputation results in lower response time)
+  3)UpVotes            (I expect higher upvotes should result in lower respons time)
+  4)DownVotes          (I do not think really any effect for DownVotes)
+  5)CreationDate       (I believe as we go furthure in time people are more engaged with internet 
+                          so I think response_time would decrease by the creation Date increases)
+  6)Score              (Not very sure but I guess those who have higher score might have been responded soon)
+  7)ViewCount           (If a question is viewed more, it should be responded sooner)
+
+5. Explain and show in detail how you rename and recode the variables you are examining, and what
+units each are measured in.
+
+
+I think the name of my variables are self introducing. Here I explain more and will specify their units:
+
+  1)PostCreationHour   Hour of the time a post was created (0,1,2,...,23)
+  2)Reputation         It is an integer number assigned to any user based on his positive contribution
+  3)UpVotes            the number of viwers'like for the post
+  4)DownVotes          the number of viwers' dislike for the post
+  5)CreationDate       What exact date the post was created?  (it shows the
+                          date by the number of days after 01/01/1970 0:0:0)
+                          
+  6)Score             A score given for that particular post given by the website
+  7)ViewCount         It litterally counts how many time the Question webpage is viewed. 
+
+These parameters are extracted, merged and cleaned from two raw xml files each with about 90,000 raws of parameters. 
+Here I have provided the R code I did for processing the data and putting them all in a final data frame.
+
+
+```{r, eval=FALSE}
+
+cat("\014")    #This clears the Consol
+rm(list=ls())  
+install.packages("XML")
+install.packages("stringr")
+install.packages("lubridate")
+library("XML")
+library(stringr)
+library(lubridate)
+#############################################
+xmlobj<-xmlTreeParse("C:/Users/monabiyan/SkyDrive/Summer 2015/Internship/Post.xml");
+Post<-xmlRoot(xmlobj)
+HourQTime=0;
+QTime=0
+ViewCount=0
+Person=0
+AnswerTime=0;
+Score=0;
+Reputation=0;
+index=1;
+index_ans=1;
+general_id=0;
+PostID=0
+Question_xml_rows=0
+
+index=1
+for (i in 1:xmlSize(Post))
+{
+ XML_row= xmlAttrs(Post[[i]])
+ if (as.numeric(XML_row[["PostTypeId"]])==1)
+  {
+    if (sum(str_detect(names(XML_row),"OwnerUserId")))
+    {
+      Person[index]=as.numeric(XML_row[["OwnerUserId"]])
+      PostID[index]=as.numeric(XML_row[["Id"]])
+      Score[index]=as.numeric(XML_row[["Score"]])
+      ViewCount[index]=as.numeric(XML_row[["ViewCount"]])
+      QTime[index]=as.numeric(ymd_hms(as.character(XML_row[["CreationDate"]])))
+      HourQTime[index]=as.numeric(hour((ymd_hms(as.character(XML_row[["CreationDate"]])))))
+      index=index+1
+      print(i)
+    }
+  
+  }
+}
+
+Question_df=data.frame(Person,PostID,Score,ViewCount,QTime,HourQTime)
+head(Question_df)
+write.csv(Question_df, file = "C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/Question_df.csv")
+####################################################3
+
+ParentPostID=0
+AnswerTime=0
+index=1
+for (i in 1:N)
+{
+    if (as.numeric(xmlAttrs(Post[[i]])[["PostTypeId"]])==2)
+      {
+        if(i%%10000==0) 
+        {print(i)}
+        ParentPostID[index]=as.numeric(xmlAttrs(Post[[i]])[["ParentId"]])
+        AnswerTime[index]=as.numeric(ymd_hms(as.character(xmlAttrs(Post[[i]])[["CreationDate"]])))
+        index=index+1
+      }
+}
+
+Answer_df=data.frame(ParentPostID,AnswerTime)
+head(Answer_df)
+write.csv(Answer_df, file = "C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/Answer_df.csv")
+
+############################################################################
+
+xmlobj<-xmlTreeParse("C:/Users/monabiyan/SkyDrive/Summer 2015/Internship/User.xml");
+User<-xmlRoot(xmlobj)
+M=xmlSize(User)
+index=1
+User_ID=0
+User_Reputation=0
+User_Upvotes=0
+User_Downvotes=0
+for (i in 2:M)
+{
+  
+    User_ID[index]=as.numeric(xmlAttrs(User[[i]])[[1]])
+    User_Reputation[index]=as.numeric(xmlAttrs(User[[i]])[["Reputation"]])
+    User_Upvotes[index]=as.numeric(xmlAttrs(User[[i]])[["UpVotes"]])
+    User_Downvotes[index]=as.numeric(xmlAttrs(User[[i]])[["DownVotes"]])
+    index=index+1
+    print(i)
+}
+User_df=data.frame(User_ID,User_Reputation,User_Upvotes,User_Downvotes)
+write.csv(User_df, file = "C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/User_df.csv")
+
+######################################
+N1=length(Question_df$PostID)
+N2=length(Answer_df$ParentPostID)
+Response_hour=0
+
+for (i in 1:N1)
+{
+  
+  
+  a=Question_df$PostID[i]
+  Find_Vect=Answer_df$AnswerTime[Answer_df$ParentPostID==a]
+  if(length(Find_Vect)==0)
+    {
+      Response_hour[i]=9999999 #Means no answer
+    }
+  if(length(Find_Vect)>0)
+    {
+    Response_hour[i]=(Find_Vect[1]-Question_df$QTime[i])/3600
+    print(i)
+    }
+  rm(Find_Vect)
+}
+head(Response_hour)
+Full_Question_df=data.frame(Question_df,Response_hour)
+write.csv(Full_Question_df,file = "C:/Users/monabiyan/Desktop/Full_Question_df.csv") 
+row_to_keep = !(Response_hour==9999999)
+Removed_Full_Question_df=Full_Question_df[row_to_keep,]
+write.csv(Removed_Full_Question_df,file = "C:/Users/monabiyan/Desktop/Removed_Full_Question_df.csv") 
+#########################################################
+N3=length(Removed_Full_Question_df[,1])  
+Rep=0
+Up=0
+Down=0
+for (i in 1:length(Removed_Full_Question_df[,1]))
+{
+  print(i)
+  person_no=Removed_Full_Question_df$Person[i]
+  Rep[i]=User_df$User_Reputation[User_df$User_ID==person_no]
+  Up[i]=User_df$User_Upvotes[User_df$User_ID==person_no]
+  Down[i]=User_df$User_Downvotes[User_df$User_ID==person_no]
+}
+Removed_Full_Question_df$QTime=Removed_Full_Question_df$QTime/(3600*24) #days from 1970
+  final_cleaned_Question_df=data.frame(Removed_Full_Question_df,Rep,Up,Down)
+  write.csv(final_cleaned_Question_df,file = "C:/Users/monabiyan/Desktop/final_cleaned_Question_df.csv") 
+  
+```
+
+
+5. Explain and show in detail how you rename and recode the variables you are examining, and what
+units each are measured in.
+
+
+I think the name of my variables are self introducing. Here I explain more and will specify their units:
+
+  1)PostCreationHour   Hour of the time a post was created (0,1,2,...,23)
+  2)Reputation         It is an integer number assigned to any user based on his positive contribution
+  3)UpVotes            the number of viwers'like for the post
+  4)DownVotes          the number of viwers' dislike for the post
+  5)CreationDate       What exact date the post was created?  (it shows the
+                          date by the number of days after 01/01/1970 0:0:0)
+                          
+  6)Score             A score given for that particular post given by the website
+  7)ViewCount         It litterally counts how many time the Question webpage is viewed. 
+
+These parameters are extracted, merged and cleaned from two raw xml files each with about 90,000 raws of parameters. 
+Here I have provided the R code I did for processing the data and putting them all in a final data frame.
+
+
+```{r, eval=FALSE}
+
+cat("\014")    #This clears the Consol
+rm(list=ls())  
+install.packages("XML")
+install.packages("stringr")
+install.packages("lubridate")
+library("XML")
+library(stringr)
+library(lubridate)
+#############################################
+xmlobj<-xmlTreeParse("C:/Users/monabiyan/SkyDrive/Summer 2015/Internship/Post.xml");
+Post<-xmlRoot(xmlobj)
+HourQTime=0;
+QTime=0
+ViewCount=0
+Person=0
+AnswerTime=0;
+Score=0;
+Reputation=0;
+index=1;
+index_ans=1;
+general_id=0;
+PostID=0
+Question_xml_rows=0
+
+index=1
+for (i in 1:xmlSize(Post))
+{
+ XML_row= xmlAttrs(Post[[i]])
+ if (as.numeric(XML_row[["PostTypeId"]])==1)
+  {
+    if (sum(str_detect(names(XML_row),"OwnerUserId")))
+    {
+      Person[index]=as.numeric(XML_row[["OwnerUserId"]])
+      PostID[index]=as.numeric(XML_row[["Id"]])
+      Score[index]=as.numeric(XML_row[["Score"]])
+      ViewCount[index]=as.numeric(XML_row[["ViewCount"]])
+      QTime[index]=as.numeric(ymd_hms(as.character(XML_row[["CreationDate"]])))
+      HourQTime[index]=as.numeric(hour((ymd_hms(as.character(XML_row[["CreationDate"]])))))
+      index=index+1
+      print(i)
+    }
+  
+  }
+}
+
+Question_df=data.frame(Person,PostID,Score,ViewCount,QTime,HourQTime)
+head(Question_df)
+write.csv(Question_df, file = "C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/Question_df.csv")
+####################################################3
+
+ParentPostID=0
+AnswerTime=0
+index=1
+for (i in 1:N)
+{
+    if (as.numeric(xmlAttrs(Post[[i]])[["PostTypeId"]])==2)
+      {
+        if(i%%10000==0) 
+        {print(i)}
+        ParentPostID[index]=as.numeric(xmlAttrs(Post[[i]])[["ParentId"]])
+        AnswerTime[index]=as.numeric(ymd_hms(as.character(xmlAttrs(Post[[i]])[["CreationDate"]])))
+        index=index+1
+      }
+}
+
+Answer_df=data.frame(ParentPostID,AnswerTime)
+head(Answer_df)
+write.csv(Answer_df, file = "C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/Answer_df.csv")
+
+############################################################################
+
+xmlobj<-xmlTreeParse("C:/Users/monabiyan/SkyDrive/Summer 2015/Internship/User.xml");
+User<-xmlRoot(xmlobj)
+M=xmlSize(User)
+index=1
+User_ID=0
+User_Reputation=0
+User_Upvotes=0
+User_Downvotes=0
+for (i in 2:M)
+{
+  
+    User_ID[index]=as.numeric(xmlAttrs(User[[i]])[[1]])
+    User_Reputation[index]=as.numeric(xmlAttrs(User[[i]])[["Reputation"]])
+    User_Upvotes[index]=as.numeric(xmlAttrs(User[[i]])[["UpVotes"]])
+    User_Downvotes[index]=as.numeric(xmlAttrs(User[[i]])[["DownVotes"]])
+    index=index+1
+    print(i)
+}
+User_df=data.frame(User_ID,User_Reputation,User_Upvotes,User_Downvotes)
+write.csv(User_df, file = "C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/User_df.csv")
+
+######################################
+N1=length(Question_df$PostID)
+N2=length(Answer_df$ParentPostID)
+Response_hour=0
+
+for (i in 1:N1)
+{
+  
+  
+  a=Question_df$PostID[i]
+  Find_Vect=Answer_df$AnswerTime[Answer_df$ParentPostID==a]
+  if(length(Find_Vect)==0)
+    {
+      Response_hour[i]=9999999 #Means no answer
+    }
+  if(length(Find_Vect)>0)
+    {
+    Response_hour[i]=(Find_Vect[1]-Question_df$QTime[i])/3600
+    print(i)
+    }
+  rm(Find_Vect)
+}
+head(Response_hour)
+Full_Question_df=data.frame(Question_df,Response_hour)
+write.csv(Full_Question_df,file = "C:/Users/monabiyan/Desktop/Full_Question_df.csv") 
+row_to_keep = !(Response_hour==9999999)
+Removed_Full_Question_df=Full_Question_df[row_to_keep,]
+write.csv(Removed_Full_Question_df,file = "C:/Users/monabiyan/Desktop/Removed_Full_Question_df.csv") 
+#########################################################
+N3=length(Removed_Full_Question_df[,1])  
+Rep=0
+Up=0
+Down=0
+for (i in 1:length(Removed_Full_Question_df[,1]))
+{
+  print(i)
+  person_no=Removed_Full_Question_df$Person[i]
+  Rep[i]=User_df$User_Reputation[User_df$User_ID==person_no]
+  Up[i]=User_df$User_Upvotes[User_df$User_ID==person_no]
+  Down[i]=User_df$User_Downvotes[User_df$User_ID==person_no]
+}
+Removed_Full_Question_df$QTime=Removed_Full_Question_df$QTime/(3600*24) #days from 1970
+  final_cleaned_Question_df=data.frame(Removed_Full_Question_df,Rep,Up,Down)
+  write.csv(final_cleaned_Question_df,file = "C:/Users/monabiyan/Desktop/final_cleaned_Question_df.csv") 
+  
+```
+Now that we cleaned the data lets sketch ome plots to get some basic sense of the data:
+
+
+```{r}
+
+library(ggplot2)
+
+final_cleaned_Question_df<-read.csv(file="C:/Users/monabiyan/Desktop/final_cleaned_Question_df.csv")
+ 
+  
+mmm<-aggregate(Response_hour~as.factor(HourQTime),data=final_cleaned_Question_df,FUN=median)
+ggplot(data=mmm,aes(x=mmm[,1],y=mmm[,2])) + geom_point()+ggtitle("What hour during a day is a best time to ask your question?") +xlab("Question Posterd Hour")+ylab("Median time(hr) for the First Answer posted ")
+
+
+ggplot(data=final_cleaned_Question_df,aes(x=ViewCount,y=Score)) + geom_point() +ggtitle("Are score and ViewCount related") +xlab("ViewCount")+ylab("Score")
+
+
+ggplot(data=final_cleaned_Question_df,aes(x=ViewCount,y=Response_hour)) + geom_point() +ggtitle("Are score and ViewCount related") +xlab("ViewCount")+ylab("Score")
+
+
+ggplot(data=final_cleaned_Question_df,aes(x=Score,y=Response_hour)) + geom_point() +ggtitle("Are score and Answer time related?")+xlab("Score")+ylab("First Answer Recieved(hr)")
+
+ggplot(data=final_cleaned_Question_df,aes(x=QTime,y=Response_hour)) + geom_point() +ggtitle("relations between Question post time and the first answer recieved time score and ViewCount related") +xlab("Question Time (days from first day of 1970)")+ylab("First Answer Recieved(hr)")
+
+ggplot(data=final_cleaned_Question_df,aes(x=QTime,y=ViewCount)) + geom_point() +ggtitle("Are View Count increase by the passage of time for a Question Post? Sure it will :)") +xlab("Question Time post(hrs ater 1970)")+ylab("ViewCount")
+
+```
+
+6. Before running a multiple regression, run a few bivariate regressions of Y on some of your X variables.
+What do you infer? Which of these do you think might change with the addition of multiple variables?
+
+```{r}  
+final_cleaned_Question_df<-read.csv(file = "C:/Users/monabiyan/Desktop/final_cleaned_Question_df.csv")
+ 
+#Data Summary
+#final_cleaned_Question_df$Response_hour  #How many hour took to recieve first answer
+#final_cleaned_Question_df$Score     #Question Score
+#final_cleaned_Question_df$QTime  #days from 1970
+#final_cleaned_Question_df$Rep   #Reputation of the User who put this questionn
+#final_cleaned_Question_df$Up  #Upvotes for this question
+#final_cleaned_Question_df$Down  #Downvotes for this question
+#final_cleaned_Question_df$ViewCount #how many visited 
+#final_cleaned_Question_df$HourQTime  #What hour of the day this is asked
+```
+
+
+```{r}  
+mr1<-lm(Response_hour ~ Score ,data=final_cleaned_Question_df)
+summary(mr1)  
+mr2<-lm(Response_hour ~ QTime ,data=final_cleaned_Question_df)
+summary(mr2)
+mr3<-lm(Response_hour ~ Rep ,data=final_cleaned_Question_df)
+summary(mr3) #No dependency
+mr4<-lm(Response_hour ~ Up ,data=final_cleaned_Question_df)
+summary(mr4)  #No dependency
+mr5<-lm(Response_hour ~ Down ,data=final_cleaned_Question_df)
+summary(mr5)   #No dependency
+mr6<-lm(Response_hour ~ ViewCount ,data=final_cleaned_Question_df)
+summary(mr6)   
+```
+
+The bivariate regressions tell us that the following variable have significant linear coorolation with the dependent variabe:
+1)Score  "+" coefficient
+2)QTime  "-" coefficient
+3)Viewcount  "-" coefficient
+
+I think Score might change since it could be dependent to ViewCount
+
+7. Run your full multiple regression using lm() and present your results using the output from the
+stargazer R package. Interpret the coefficients. What do they tell you substantively? Which variables
+seem to have the biggest substantive impact? Which ones could you actually change with some
+intervention, and how big a difference do you think that could make?
+```{r}
+
+mr_full <- lm(Response_hour ~ Score +QTime+Rep+Up+Down+ViewCount+I(HourQTime^2),data=final_cleaned_Question_df)
+summary(mr_full)
+```
+
+
+
+```{r results='asis'} 
+require(stargazer)
+stargazer(mr_full, align=TRUE, no.space=TRUE, dep.var.labels=c("Response hour"), 
+covariate.labels=c("Score","Question Time(hour)" ,"Reputation" ,"UpVotes" ,"DownVotes" ,"ViewCount"),omit.stat=c("LL","ser","f"),header=FALSE,type="html")
+
+```
+
+
+8. How have any of the coefficients changed from the bivariate regressions? 
+
+  'Score','QTime' and 'ViewCount' have again being shown as having significant linear coorelation with the 'response time' and 'UpVotes','DownVotes' and 'Reputation' are not significant. The same result came from  bivariant regression. However we saw 'Score' to become less significant once other parameters like 'ViewCount' and 'QTime' kept their significcance.
+
+What can you infer from that?
+
+  I think 'Score' might be associated with the 'ViewCount' since viewCount might increase the post score. (I did search but still not sure how score is calculated for a post) So that might be the reason why 'Score' lost its significant.
+
+How do you think your various independent variables interact and affect each other? Try to find an example where a variable appears signficant in the bivariate regression, but not in the full regression. Is this an example of a spurious or a chained causal pathway?
+
+So as mentioned, Score lost its significance once it had in bivarient regression. That means there is probably a 'Chain causation'. I think: ViewCount---> Score
+
+
+
+9. How does what you see match, or not, your hypotheses from (4)? Why did/didn't it match what you expected?
+
+I was expecting 'Score' and 'Reputation' play some significant role in the 'Response_hour'. However, it was not the case. Since 'Score' is directly being boosted by another independent variable 'ViewCount'.And apparently 'Reputation' plays no role in 'Response hour'
+
+However,logically I was expecting a significant coorelation between 'ViewCount','QTime' and the 'Response_hour' which in fact was proven by 
+
+
+
+
+10. What do the R2 and adjusted R2 tell you about your model?
+```{r}
+mr_final <- lm(Response_hour ~ QTime+ViewCount,data=final_cleaned_Question_df)
+summary(mr_final)
+
+```
+
+R^2 is essentially a measure of the proportion of the total variation in Y explained by X. R^2 is between 0 and 1 where 1 means perfect fit while 0 means very bad fit. In here, R^2=0.008149 is low which means we are not having a good fit for the data. However based on the significance test of the regression model we still support the fact that increasing 'Question-Hour' and 'ViewCount' will reduce the 'Response_Time'.
+moreover, R^2 modified which makes R^2 independent of the number of variables assigned for the regression, is 0.008079 which is also very low. (Not a good fit) 
+
+11. How would you use one of the variable selection methods to choose a model with fewer variables? Select one of the methods (either one of the stepwise or criterion-based methods) and show which variables it
+would lead you to keep. Do you agree with its results?
+
+I will use Stepwise Backward elimination method:
+Which means start with full parametes, in each step eliminating one parameter that improves the regression (F-statistics) the most until removing any of remaining paprameters will not improve.
+Suppose that we have all linear relationship:
+
+```{r}
+reg1<- lm(Response_hour ~ Score +QTime+Rep+Up+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg1)
+reg2<- lm(Response_hour ~ Score +QTime+Rep+Up+Down,data=final_cleaned_Question_df)
+summary(reg2)
+reg3<- lm(Response_hour ~ Score +QTime+Rep+Up+ViewCount,data=final_cleaned_Question_df)
+summary(reg3)
+reg4<- lm(Response_hour ~ Score +QTime+Rep+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg4)
+reg5<- lm(Response_hour ~ Score +QTime+Up+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg5)
+reg6<- lm(Response_hour ~ Score +Rep+Up+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg6)
+reg7<- lm(Response_hour ~ QTime+Rep+Up+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg7)
+```
+So removing "Reputation" would improve regression the most. 
+Next step:
+```{r}
+reg8<- lm(Response_hour ~ Score +QTime+Up+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg8)
+reg9<- lm(Response_hour ~ Score +QTime+Up+Down,data=final_cleaned_Question_df)
+summary(reg9)
+reg10<- lm(Response_hour ~ Score +QTime+Up+ViewCount,data=final_cleaned_Question_df)
+summary(reg10)
+reg11<- lm(Response_hour ~ Score +QTime+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg11)
+reg12<- lm(Response_hour ~ Score +Up+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg12)
+reg13<- lm(Response_hour ~ QTime+Up+Down+ViewCount,data=final_cleaned_Question_df)
+summary(reg13)
+```
+So removing "DownVotes" would improve the regression the most.
+Next step:
+```{r}
+reg14<- lm(Response_hour ~ Score +QTime+Up+ViewCount,data=final_cleaned_Question_df)
+summary(reg14)
+reg15<- lm(Response_hour ~ Score +QTime+Up,data=final_cleaned_Question_df)
+summary(reg15)
+reg16<- lm(Response_hour ~ Score +QTime+ViewCount,data=final_cleaned_Question_df)
+summary(reg16)
+reg17<- lm(Response_hour ~ Score +Up+ViewCount,data=final_cleaned_Question_df)
+summary(reg17)
+reg18<- lm(Response_hour ~ QTime+Up+ViewCount,data=final_cleaned_Question_df)
+summary(reg18)
+
+```
+So removing "UpVotes"contributes the regression the most.
+
+NextStep:
+```{r}
+reg17<- lm(Response_hour ~ Score +QTime+ViewCount,data=final_cleaned_Question_df)
+summary(reg17)
+reg18<- lm(Response_hour ~ Score +QTime,data=final_cleaned_Question_df)
+summary(reg18)
+reg19<- lm(Response_hour ~ QTime+ViewCount,data=final_cleaned_Question_df)
+summary(reg19)
+```
+So removing "Score" improves the regression the most.
+NextStep:
+```{r}
+reg20<- lm(Response_hour ~ QTime+ViewCount,data=final_cleaned_Question_df)
+summary(reg20)
+reg21<- lm(Response_hour ~ QTime,data=final_cleaned_Question_df)
+summary(reg21)
+reg22<- lm(Response_hour ~ ViewCount,data=final_cleaned_Question_df)
+summary(reg22)
+```
+So removing "ViewCount"  would improve the regression. 
+This analysis I believe makes sense. I think "ViewCount" depends on "Qtime" So lets check it out with regression:
+```{r}
+reg<- lm(ViewCount~I(QTime^0.5),data=final_cleaned_Question_df)
+summary(reg)
+```
+So the above analysis shows the strong dependency of ViewCount over time which completely makes sense. 
+However, in order to be more compatible with this homework and next questions, I will assume to have ViewCount an independent significant variable. 
+
+
+
+12. What are your overall conclusions? What are the weaknesses of your results, and how could you improve them with better or different data?
+
+I certainly believe that the variable 'Response_hour' is dependent to 'Question Time'  
+      1) By increasing 'Question Time' we are entering to a world with more and more computer scientists and computer users involved in asking and answeing questions. So that could make sense if we recieve faster response through the time. MoreOver, it could be the sign that Stack Exchange website is getting more popular.
+      
+      However, I believe we need to do more text mining to analize the question and the topics being asked. Some questions are so popular that will recieve immidiate answer. Some are so difficult that nobody doesn't know the answer and some are neither important nor popular so that nobody cares. So this factor also is needed to be considered for a full academic study which is not considered in this homework study.
+      
+
+13. Calculations (using R):
+a. Derive the coefficients from your regression using the (X0X)???1X0Y formula. (If you run into problems
+using solve(), try using ginv() instead, which does the same thing but is a bit more robust.)
+
+```{r}
+
+mr_final <- lm(Response_hour ~ QTime+ViewCount,data=final_cleaned_Question_df)
+summary(mr_final)
+
+Y=cbind(final_cleaned_Question_df$Response_hour)
+
+X=cbind(1,final_cleaned_Question_df$QTime,final_cleaned_Question_df$ViewCount)
+B=solve(t(X)%*%X)%*%(t(X)%*%Y)
+B
+
+```
+
+
+b. For one of the coefficients, confirm its p value as shown in the regression output using the coefficient,its standard error, and pt() in R.
+
+We choose B1 (QTime variable)
+```{r}
+#for B1:(Q_TIME)
+B1=-0.39192036
+SE=0.02631
+Mean=B1
+MIU= 0
+T_statistics=((MIU-B1)/0.2631)
+p_value=pt(T_statistics,length(final_cleaned_Question_df$QTime))
+
+```
+
+
+
+c. Calculate the R2 and adjusted R2 using R, and confirm that your results match the regression output.
+```{r}
+ypred <- predict(mr_final)
+y <- final_cleaned_Question_df$Response_hour
+tss <- sum((y - mean(y))^2)
+sse <- sum((y-ypred)^2)
+r2 <- (tss-sse)/tss
+r2
+
+xmat=cbind(1,final_cleaned_Question_df$QTime,final_cleaned_Question_df$ViewCount)
+n <- length(y)
+k <- ncol(xmat)-1
+dft <- n - 1
+dfe <- n - k - 1
+R2_modified<-(tss/dft - sse/dfe)/ (tss/dft)
+R2_modified
+
+```
+
+
+d. Calulate the F statistic using R and confirm it against the 
+regression output.
+
+```{r}
+
+f <- (r2/k) / ((1-r2)/(n-k-1))
+pf(f,k,(n-k-1),lower.tail=F)
+
+```
+
+
+
+14. Add at least one quadratic term into your model and interpret the results. Is it significant? What is
+the effect of a 1-unit increase in that variable at its mean value?
+```{r}
+mr <- lm(Response_hour ~ QTime+ViewCount+I(ViewCount^2),data=final_cleaned_Question_df)
+summary(mr)
+
+```
+By adding one quadratic term we still recieve a significant coefficients.
+the effect of a 1-unit increase in that variable at its mean:
+```{r}
+x1<-final_cleaned_Question_df$QTime
+x2<-final_cleaned_Question_df$ViewCount
+B0<-as.numeric(mr$coefficients[1])
+B0
+B1<-as.numeric(mr$coefficients[2])
+B1
+B2<-as.numeric(mr$coefficients[3])
+B2
+B3<-as.numeric(mr$coefficients[4])
+B3
+x1_mean<-mean(x1)
+x2_mean<-mean(x2)
+y0<-B0+B1*x1_mean+B2*x2_mean+B3*(x2_mean)^2
+x<-x2_mean+1
+y1<-B0+B1*x1_mean+B2*x+B3*(x)^2
+diff<-y1-y0
+diff
+
+```
+
+15. Add at least one interaction term to you model and interpret the results. Is it significant? What is the
+effect of a 1-unit increase in one of those interacted variables holding the other at its mean value?
+```{r}
+mr <- lm(Response_hour ~ QTime+ViewCount+QTime*ViewCount,data=final_cleaned_Question_df)
+summary(mr)
+```
+
+```{r}
+final_cleaned_Question_df<-read.csv(file="C:/Users/monabiyan/Desktop/final_cleaned_Question_df.csv")
+mr <- lm(Response_hour ~ QTime+ViewCount+QTime*ViewCount,data=final_cleaned_Question_df)
+summary(mr)
+x1<-final_cleaned_Question_df$QTime
+x2<-final_cleaned_Question_df$ViewCount
+B0<-as.numeric(mr$coefficients[1])
+B0
+B1<-as.numeric(mr$coefficients[2])
+B1
+B2<-as.numeric(mr$coefficients[3])
+B2
+B3<-as.numeric(mr$coefficients[4])
+B3
+x1_mean<-mean(x1)
+x2_mean<-mean(x2)
+y0<-B0+B1*x1_mean+B2*x2_mean+B3*(x1_mean)*(x2_mean)
+x<-x2_mean+1
+y1<-B0+B1*x1_mean+B2*x+B3*(x)*(x1_mean)^2
+diff<-y1-y0
+diff
+
+```
+
+16. Test either the model in 14 or the model in 15 using the F test for nested models. That is, estimate the
+full model with the variable and quadratic term, or the variable and interaction, and then estimate
+the reduced model without either, and run the F test to establish whether those variables significantly
+improve your model.
+
+```{r}
+mr1 <- lm(Response_hour ~ QTime+ViewCount+I(ViewCount^2)+ViewCount*QTime,data=final_cleaned_Question_df)
+summary(mr1)
+
+```
+Ftest =66.01
+Lets ommit the quadratic term. 
+```{r}
+mr2 <- lm(Response_hour ~ QTime+ViewCount+ViewCount*QTime,data=final_cleaned_Question_df)
+summary(mr2)
+
+```
+Ftest=77.94    p-value: < 2.2e-16
+
+
+Lets ommit the interaction term. 
+```{r}
+mr3 <- lm(Response_hour ~ QTime+ViewCount+I(ViewCount^2),data=final_cleaned_Question_df)
+summary(mr3)
+```
+Ftest=86.69    p-value: < 2.2e-16
+
+
+now lets remove both interaction terms and quadratic terms:
+```{r}
+mr4 <- lm(Response_hour ~ QTime+ViewCount,data=final_cleaned_Question_df)
+summary(mr4)
+```
+Ftest=116.8    p-value: < 2.2e-16
+There was no significant change.
+
+So the F-Test analysis showed that neither the quadratic terms nor the interaction term improved the regression. So we would be better to remove both quadratic and interaction terms.
+
+
+
+

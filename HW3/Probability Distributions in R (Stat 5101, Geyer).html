@@ -1,0 +1,520 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0049)http://www.stat.umn.edu/geyer/old/5101/rlook.html -->
+<html lang="EN-US"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<title>
+   Probability Distributions in R (Stat 5101, Geyer)
+</title>
+
+<!-- Include stylesheet -->
+<link rel="STYLESHEET" href="./Probability Distributions in R (Stat 5101, Geyer)_files/foo.css" type="text/css">
+
+<style type="text/css"></style></head>
+
+<body>
+
+<p>
+<!-- Navigation -->
+<a href="http://www.umn.edu/twincities/">University of Minnesota, Twin Cities</a>
+&nbsp;
+&nbsp;
+<a href="http://www.stat.umn.edu/">School of Statistics</a>
+&nbsp;
+&nbsp;
+<a href="http://www.stat.umn.edu/geyer/5101/">Stat 5101</a>
+&nbsp;
+&nbsp;
+<a href="http://rweb.stat.umn.edu/Rweb/">Rweb</a>
+</p>
+
+<h1 class="Title">
+   Probability Distributions in R (Stat 5101, Geyer)
+</h1>
+
+<h2>Contents</h2>
+
+<ul>
+<li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#dist">R Functions for Probability Distributions</a>
+</li><li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#norm">The Normal Distribution</a>
+<ul>
+<li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#forward">Direct Look-Up</a> (<code>pnorm</code>)
+</li><li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#backward">Inverse Look-Up</a> (<code>qnorm</code>)
+</li><li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#density">Density</a> (<code>dnorm</code>)
+</li><li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#random">Random Variates</a> (<code>rnorm</code>)
+</li></ul>
+</li><li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#binom">The Binomial Distribution</a>
+<ul>
+<li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#dbinom">Direct Look-Up, Points</a> (<code>dbinom</code>)
+</li><li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#pbinom">Direct Look-Up, Intervals</a> (<code>pbinom</code>)
+</li><li><a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#qbinom">Inverse Look-Up</a> (<code>qbinom</code>)
+</li></ul>
+</li></ul>
+
+<h2><a name="dist">R Functions for Probability Distributions</a></h2>
+
+<p>
+Every distribution that R handles has four functions.  There is a root
+name, for example, the root name for the normal distribution
+is <code>norm</code>.  This root is prefixed by one of the letters
+</p><ul>
+<li> <code>p</code> for "probability", the cumulative distribution function (c.&nbsp;d.&nbsp;f.)
+</li><li> <code>q</code> for "quantile", the inverse c.&nbsp;d.&nbsp;f.
+</li><li> <code>d</code> for "density", the density function (p.&nbsp;f. or p.&nbsp;d.&nbsp;f.)
+</li><li> <code>r</code> for "random", a random variable having the specified distribution
+</li></ul>
+For the normal distribution, these functions are
+<code>pnorm</code>,
+<code>qnorm</code>,
+<code>dnorm</code>, and
+<code>rnorm</code>.
+For the binomial distribution,
+these functions are
+<code>pbinom</code>,
+<code>qbinom</code>,
+<code>dbinom</code>, and
+<code>rbinom</code>.
+And so forth.
+
+<p>
+For a <em>continuous</em> distribution  (like the normal),
+the most useful functions for doing problems involving probability
+calculations are the "<code>p</code>" and "<code>q</code>" functions
+(c.&nbsp;d.&nbsp;f. and inverse c.&nbsp;d.&nbsp;f.), because the
+the density (p.&nbsp;d.&nbsp;f.) calculated by the
+"<code>d</code>" function can only be used to calculate probabilities
+via integrals and R doesn't do integrals.
+</p><p>
+For a <em>discrete</em> distribution  (like the binomial),
+the "<code>d</code>" function calculates the density (p.&nbsp;f.),
+which in this case is a probability
+</p><blockquote>
+   <i>f</i>(<i>x</i>) = <i>P</i>(<i>X</i> = <i>x</i>)
+</blockquote>
+and hence is useful in calculating probabilities.
+<p>
+R has functions to handle many probability distributions.
+The table below gives the names of the functions for each distribution
+and a link to the on-line documentation that is the authoritative
+reference for how the functions are used.
+But don't read the on-line documentation yet.
+First, try the examples in the sections following the table.
+<table>
+<tbody><tr>
+<th scope="col">Distribution
+</th><th colspan="4" scope="col">Functions
+</th></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Beta.html">Beta</a>
+</td><td><code>pbeta</code>
+</td><td><code>qbeta</code>
+</td><td><code>dbeta</code>
+</td><td><code>rbeta</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Binomial.html">Binomial</a>
+</td><td><code>pbinom</code>
+</td><td><code>qbinom</code>
+</td><td><code>dbinom</code>
+</td><td><code>rbinom</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Cauchy.html">Cauchy</a>
+</td><td><code>pcauchy</code>
+</td><td><code>qcauchy</code>
+</td><td><code>dcauchy</code>
+</td><td><code>rcauchy</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Chisquare.html">Chi-Square</a>
+</td><td><code>pchisq</code>
+</td><td><code>qchisq</code>
+</td><td><code>dchisq</code>
+</td><td><code>rchisq</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Exponential.html">Exponential</a>
+</td><td><code>pexp</code>
+</td><td><code>qexp</code>
+</td><td><code>dexp</code>
+</td><td><code>rexp</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/FDist.html">F</a>
+</td><td><code>pf</code>
+</td><td><code>qf</code>
+</td><td><code>df</code>
+</td><td><code>rf</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/GammaDist.html">Gamma</a>
+</td><td><code>pgamma</code>
+</td><td><code>qgamma</code>
+</td><td><code>dgamma</code>
+</td><td><code>rgamma</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Geometric.html">Geometric</a>
+</td><td><code>pgeom</code>
+</td><td><code>qgeom</code>
+</td><td><code>dgeom</code>
+</td><td><code>rgeom</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Hypergeometric.html">Hypergeometric</a>
+</td><td><code>phyper</code>
+</td><td><code>qhyper</code>
+</td><td><code>dhyper</code>
+</td><td><code>rhyper</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Logistic.html">Logistic</a>
+</td><td><code>plogis</code>
+</td><td><code>qlogis</code>
+</td><td><code>dlogis</code>
+</td><td><code>rlogis</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Lognormal.html">Log Normal</a>
+</td><td><code>plnorm</code>
+</td><td><code>qlnorm</code>
+</td><td><code>dlnorm</code>
+</td><td><code>rlnorm</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/NegBinomial.html">Negative Binomial</a>
+</td><td><code>pnbinom</code>
+</td><td><code>qnbinom</code>
+</td><td><code>dnbinom</code>
+</td><td><code>rnbinom</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Normal.html">Normal</a>
+</td><td><code>pnorm</code>
+</td><td><code>qnorm</code>
+</td><td><code>dnorm</code>
+</td><td><code>rnorm</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Poisson.html">Poisson</a>
+</td><td><code>ppois</code>
+</td><td><code>qpois</code>
+</td><td><code>dpois</code>
+</td><td><code>rpois</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/TDist.html">Student t</a>
+</td><td><code>pt</code>
+</td><td><code>qt</code>
+</td><td><code>dt</code>
+</td><td><code>rt</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Tukey.html">Studentized Range</a>
+</td><td><code>ptukey</code>
+</td><td><code>qtukey</code>
+</td><td><code>dtukey</code>
+</td><td><code>rtukey</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Uniform.html">Uniform</a>
+</td><td><code>punif</code>
+</td><td><code>qunif</code>
+</td><td><code>dunif</code>
+</td><td><code>runif</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Weibull.html">Weibull</a>
+</td><td><code>pweibull</code>
+</td><td><code>qweibull</code>
+</td><td><code>dweibull</code>
+</td><td><code>rweibull</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/Wilcoxon.html">Wilcoxon Rank Sum Statistic</a>
+</td><td><code>pwilcox</code>
+</td><td><code>qwilcox</code>
+</td><td><code>dwilcox</code>
+</td><td><code>rwilcox</code>
+</td></tr><tr>
+<td><a href="http://rweb.stat.umn.edu/R/library/base/html/SignRank.html">Wilcoxon Signed Rank Statistic</a>
+</td><td><code>psignrank</code>
+</td><td><code>qsignrank</code>
+</td><td><code>dsignrank</code>
+</td><td><code>rsignrank</code>
+</td></tr></tbody></table>
+</p><p>
+<b>Warning:</b> The parameters of these distributions may not agree
+with textbooks.  In particular, the second parameter in the gamma distribution
+is the reciprocal of the second parameter in our textbook
+(<i>beta</i> = 1 / <i>lambda</i>).
+</p><p>
+That's a lot of distributions.  Fortunately, they all work
+the same way.  If you learn one, you've learned them all.
+</p><p>
+Of course, the discrete distributions are discrete and the continuous
+distributions are continuous, so there's some difference just from that
+aspect alone, but as far as the computer is concerned, they're all the same.
+
+We'll do a continuous example first.
+
+</p><h2><a name="norm">The Normal Distribtion</a></h2>
+
+<h3><a name="forward">Direct Look-Up</a></h3>
+
+<p>
+<code>pnorm</code> is
+the R function that calculates the c.&nbsp;d.&nbsp;f.
+</p><blockquote>
+  <i>F</i>(<i>x</i>) = <i>P</i>(<i>X</i> &lt;= <i>x</i>)
+</blockquote>
+where <i>X</i> is normal.  Optional arguments described on the
+<a href="http://rweb.stat.umn.edu/R/library/base/html/Normal.html">on-line
+documentation</a> specify the parameters of the particular normal distribution.
+<p>
+Both of the R commands in the box below do exactly the same thing.
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="2" cols="60">pnorm(27.4, mean=50, sd=20)
+pnorm(27.4, 50, 20)
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+They look up <i>P</i>(<i>X</i> &lt; 27.4) when <i>X</i> is normal with mean
+50 and standard deviation 20.
+
+<h4>Example</h4>
+
+<p>
+<strong>Question:</strong> Suppose widgit weights produced at Acme Widgit
+Works have weights that are normally distributed with mean 17.46 grams
+and variance 375.67 grams.  What is the probability that a randomly chosen
+widgit weighs more then 19 grams?
+</p><p>
+<strong>Question Rephrased:</strong> What is <i>P</i>(<i>X</i> &gt; 19) when
+<i>X</i> has the N(17.46, 375.67) distribution?
+</p><p>
+<strong>Caution:</strong> R wants the s. d. as the parameter, not the
+variance.  We'll need to take a square root!
+</p><p>
+<strong>Answer:</strong>
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="1" cols="60">1 - pnorm(19, mean=17.46, sd=sqrt(375.67))
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+
+<h3><a name="backward">Inverse Look-Up</a></h3>
+
+<p>
+<code>qnorm</code> is
+the R function that calculates the inverse c.&nbsp;d.&nbsp;f.
+<i>F</i><sup>-1</sup> of the normal distribution
+The c.&nbsp;d.&nbsp;f. and the inverse c.&nbsp;d.&nbsp;f. are related by
+</p><blockquote>
+<i>p</i> = <i>F</i>(<i>x</i>)<br>
+<i>x</i> = <i>F</i><sup>-1</sup>(<i>p</i>)
+</blockquote>
+So given a number <i>p</i> between zero and one, <code>qnorm</code>
+looks up the <i>p</i>-th quantile of the normal distribution.
+As with <code>pnorm</code>, optional arguments specify the mean and
+standard deviation of the distribution.
+
+<h4>Example</h4>
+
+<p>
+<strong>Question:</strong> Suppose IQ scores are normally distributed
+with mean 100 and standard deviation 15.  What is the 95th percentile
+of the distribution of IQ scores?
+</p><p>
+<strong>Question Rephrased:</strong> What is <i>F</i><sup>-1</sup>(0.95) when
+<i>X</i> has the N(100, 15<sup>2</sup>) distribution?
+</p><p>
+<strong>Answer:</strong>
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="1" cols="60">qnorm(0.95, mean=100, sd=15)
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+
+<h3><a name="density">Density</a></h3> 
+
+<p>
+<code>dnorm</code> is
+the R function that calculates the p.&nbsp;d.&nbsp;f.
+<i>f</i> of the normal distribution.
+As with <code>pnorm</code> and <code>qnorm</code>, optional arguments
+specify the mean and standard deviation of the distribution.
+</p><p>
+There's not much need for this function in doing calculations, because
+you need to do integrals to use any p.&nbsp;d.&nbsp;f., and R doesn't
+do integrals.  In fact, there's not much use for the "d" function for
+any <em>continuous</em> distribution (discrete distributions are entirely
+another matter, for them the "d" functions are very useful, see
+the section about <a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#dbinom">dbinom</a>).
+</p><p>
+For an example of the use of <code>pnorm</code>, see the
+<a href="http://www.stat.umn.edu/geyer/old/5101/rlook.html#random">following section</a>.
+
+</p><h3><a name="random">Random Variates</a></h3> 
+
+<p>
+<code>rnorm</code> is
+the R function that simulates random variates having a specified normal
+distribution.
+As with <code>pnorm</code>, <code>qnorm</code>, and <code>dnorm</code>,
+optional arguments specify the mean and standard deviation of the distribution.
+</p><p>
+We won't be using the "r" functions (such as <code>rnorm</code>)
+much.  So here we will only give an example without full explanation.
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="4" cols="60">x &lt;- rnorm(1000, mean=100, sd=15)
+hist(x, probability=TRUE)
+xx &lt;- seq(min(x), max(x), length=100)
+lines(xx, dnorm(xx, mean=100, sd=15))
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+<p>
+This generates 1000 i.&nbsp;i.&nbsp;d. normal random numbers (first line),
+plots their histogram (second line), and graphs the p.&nbsp;d.&nbsp;f. of
+the same normal distribution (third and forth lines).
+
+</p><h2><a name="binom">The Binomial Distribtion</a></h2>
+
+<h3><a name="dbinom">Direct Look-Up, Points</a></h3>
+
+<p>
+<code>dbinom</code> is
+the R function that calculates the p.&nbsp;f. of the binomial distribution.
+Optional arguments described on the
+<a href="http://rweb.stat.umn.edu/R/library/base/html/Binomial.html">on-line
+documentation</a> specify the parameters of the particular binomial
+distribution.
+</p><p>
+Both of the R commands in the box below do exactly the same thing.
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="2" cols="60">dbinom(27, size=100, prob=0.25)
+dbinom(27, 100, 0.25)
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+They look up <i>P</i>(<i>X</i> = 27) when <i>X</i> is has the
+Bin(100, 0.25) distribution.
+
+<h4>Example</h4>
+
+<p>
+<strong>Question:</strong> Suppose widgits produced at Acme Widgit
+Works have probability 0.005 of being defective.
+Suppose widgits are shipped in cartons containing 25 widgits.
+What is the probability that a randomly chosen carton
+contains exactly one defective widgit?
+</p><p>
+<strong>Question Rephrased:</strong> What is <i>P</i>(<i>X</i> = 1) when
+<i>X</i> has the Bin(25, 0.005) distribution?
+</p><p>
+<strong>Answer:</strong>
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="1" cols="60">dbinom(1, 25, 0.005)
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+
+
+<h3><a name="pbinom">Direct Look-Up, Intervals</a></h3>
+
+<p>
+<code>pbinom</code> is
+the R function that calculates the c.&nbsp;d.&nbsp;f. of the binomial
+distribution.
+Optional arguments described on the
+<a href="http://rweb.stat.umn.edu/R/library/base/html/Binomial.html">on-line
+documentation</a> specify the parameters of the particular binomial
+distribution.
+</p><p>
+Both of the R commands in the box below do exactly the same thing.
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="2" cols="60">pbinom(27, size=100, prob=0.25)
+pbinom(27, 100, 0.25)
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+They look up <i>P</i>(<i>X</i> &lt;= 27) when <i>X</i> is has the
+Bin(100, 0.25) distribution.  (Note the <em>less than or equal to</em>
+sign.  It's important when working with a discrete distribution!)
+
+<h4>Example</h4>
+
+<p>
+<strong>Question:</strong> Suppose widgits produced at Acme Widgit
+Works have probability 0.005 of being defective.
+Suppose widgits are shipped in cartons containing 25 widgits.
+What is the probability that a randomly chosen carton
+contains no more than one defective widgit?
+</p><p>
+<strong>Question Rephrased:</strong> What is <i>P</i>(<i>X</i> &lt;= 1) when
+<i>X</i> has the Bin(25, 0.005) distribution?
+</p><p>
+<strong>Answer:</strong>
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="1" cols="60">pbinom(1, 25, 0.005)
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+
+<h3><a name="qbinom">Inverse Look-Up</a></h3>
+<p>
+<code>qbinom</code> is
+the R function that calculates the "inverse c.&nbsp;d.&nbsp;f."
+of the binomial distribution.  How does it do that when the 
+c.&nbsp;d.&nbsp;f. is a step function and hence not invertible?
+The
+<a href="http://rweb.stat.umn.edu/R/library/base/html/Binomial.html">on-line
+documentation</a> for the binomial probability functions explains.
+</p><blockquote>
+The quantile is defined as the smallest value <i>x</i> such that
+<i>F(x) &gt;= p</i>, where <i>F</i> is the distribution function.
+</blockquote>
+When the <em>p</em>-th quantile is nonunique, there is a whole interval
+of values each of which is a <em>p</em>-th quantile.  The documentation
+says that <code>qbinom</code> (and other "<code>q</code>" functions,
+for that matter) returns the smallest of these values.  That is one
+sensible definition of an "inverse c.&nbsp;d.&nbsp;f."  In the terminology
+of Section&nbsp; of the course notes, the function defined
+by <code>qbinom</code> is a <em>right inverse</em> of the function defined
+by <code>pbinom</code>, that is,
+<blockquote>
+  <code>q == pbinom(qbinom(q, n, p))</code>,
+  &nbsp;
+  &nbsp;
+  &nbsp;
+  0 &lt; <code>q</code> &lt; 1,
+  &nbsp;
+  0 &lt; <code>p</code> &lt; 1,
+  &nbsp;
+  <code>n</code> a positive integer
+</blockquote>
+is always true,
+but the analogous formula with <code>pnorm</code> and <code>qnorm</code>
+reversed does not necessarily hold.
+
+<h4>Example</h4>
+
+<p>
+<strong>Question:</strong> What are the 10th, 20th, and so forth quantiles
+of the Bin(10, 1/3) distribution?
+</p><p>
+<strong>Answer:</strong>
+</p><p>
+</p><form action="http://rweb.stat.umn.edu/cgi-bin/Rweb/Rweb.cgi" enctype="multipart/form-data" method="post">
+<textarea name="Rcode" rows="4" cols="60">qbinom(0.1, 10, 1/3)
+qbinom(0.2, 10, 1/3)
+# and so forth, or all at once with
+qbinom(seq(0.1, 0.9, 0.1), 10, 1/3)
+</textarea>
+<p>
+<input type="submit" value="Submit">
+</p></form>
+<p>
+Note the nonuniqueness.
+
+
+
+
+</p><div id="SL_balloon_obj" style="display: block;"><div id="SL_button" class="ImTranslatorLogo" style="display: block; left: 218px; top: 1014px; opacity: 0.4; background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/imtranslator-s.png);"></div><div id="SL_shadow_translation_result2" style="display: none;"></div><div id="SL_shadow_translator"><div id="SL_planshet" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/bg2.png) rgb(244, 245, 245);"><div id="SL_TB"><div id="bubblelogo" class="ImTranslatorLogo" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/imtranslator-s.png);"></div><table id="SL_tables" cellspacing="1"><tr><td class="SL_td" width="10%" align="right"><input id="SLloc" type="checkbox" title="Lock-in language"></td><td class="SL_td" width="20%" align="left"><select id="SL_lng_from"><option value="auto">Detect language</option><option value="af">Afrikaans</option><option value="sq">Albanian</option><option value="ar">Arabic</option><option value="hy">Armenian</option><option value="az">Azerbaijani</option><option value="eu">Basque</option><option value="bn">Bengali</option><option value="be">Belarusian</option><option value="bg">Bulgarian</option><option value="ca">Catalan</option><option value="zh-CN">Chinese (Simp)</option><option value="zh-TW">Chinese (Trad)</option><option value="hr">Croatian</option><option value="cs">Czech</option><option value="da">Danish</option><option value="nl">Dutch</option><option value="en">English</option><option value="eo">Esperanto</option><option value="et">Estonian</option><option value="tl">Filipino</option><option value="fi">Finnish</option><option value="fr">French</option><option value="gl">Galician</option><option value="ka">Georgian</option><option value="de">German</option><option value="el">Greek</option><option value="gu">Gujarati</option><option value="ht">Haitian Creole</option><option value="iw">Hebrew</option><option value="hi">Hindi</option><option value="hu">Hungarian</option><option value="is">Icelandic</option><option value="id">Indonesian</option><option value="ga">Irish</option><option value="it">Italian</option><option value="ja">Japanese</option><option value="kn">Kannada</option><option value="ko">Korean</option><option value="lo">Lao</option><option value="la">Latin</option><option value="lv">Latvian</option><option value="lt">Lithuanian</option><option value="mk">Macedonian</option><option value="ms">Malay</option><option value="mt">Maltese</option><option value="no">Norwegian</option><option value="fa">Persian</option><option value="pl">Polish</option><option value="pt">Portuguese</option><option value="ro">Romanian</option><option value="ru">Russian</option><option value="sr">Serbian</option><option value="sk">Slovak</option><option value="sl">Slovenian</option><option value="es">Spanish</option><option value="sw">Swahili</option><option value="sv">Swedish</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="th">Thai</option><option value="tr">Turkish</option><option value="uk">Ukrainian</option><option value="ur">Urdu</option><option value="vi">Vietnamese</option><option value="cy">Welsh</option><option value="yi">Yiddish</option></select></td><td class="SL_td" width="3" align="center"><div id="SL_switch_b" title="Switch languages" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/switchb.png);"></div></td><td class="SL_td" width="20%" align="left"><select id="SL_lng_to"><option value="af">Afrikaans</option><option value="sq">Albanian</option><option value="ar">Arabic</option><option value="hy">Armenian</option><option value="az">Azerbaijani</option><option value="eu">Basque</option><option value="bn">Bengali</option><option value="be">Belarusian</option><option value="bg">Bulgarian</option><option value="ca">Catalan</option><option value="zh-CN">Chinese (Simp)</option><option value="zh-TW">Chinese (Trad)</option><option value="hr">Croatian</option><option value="cs">Czech</option><option value="da">Danish</option><option value="nl">Dutch</option><option value="en">English</option><option value="eo">Esperanto</option><option value="et">Estonian</option><option value="tl">Filipino</option><option value="fi">Finnish</option><option value="fr">French</option><option value="gl">Galician</option><option value="ka">Georgian</option><option value="de">German</option><option value="el">Greek</option><option value="gu">Gujarati</option><option value="ht">Haitian Creole</option><option value="iw">Hebrew</option><option value="hi">Hindi</option><option value="hu">Hungarian</option><option value="is">Icelandic</option><option value="id">Indonesian</option><option value="ga">Irish</option><option value="it">Italian</option><option value="ja">Japanese</option><option value="kn">Kannada</option><option value="ko">Korean</option><option value="lo">Lao</option><option value="la">Latin</option><option value="lv">Latvian</option><option value="lt">Lithuanian</option><option value="mk">Macedonian</option><option value="ms">Malay</option><option value="mt">Maltese</option><option value="no">Norwegian</option><option value="fa">Persian</option><option value="pl">Polish</option><option value="pt">Portuguese</option><option value="ro">Romanian</option><option value="ru">Russian</option><option value="sr">Serbian</option><option value="sk">Slovak</option><option value="sl">Slovenian</option><option selected="selected" value="es">Spanish</option><option value="sw">Swahili</option><option value="sv">Swedish</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="th">Thai</option><option value="tr">Turkish</option><option value="uk">Ukrainian</option><option value="ur">Urdu</option><option value="vi">Vietnamese</option><option value="cy">Welsh</option><option value="yi">Yiddish</option></select></td><td class="SL_td" width="5%" align="center"> </td><td class="SL_td" width="8%" align="center"><div id="SL_TTS_voice" title="Listen to the translation" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/tts-voice.png);"></div></td><td class="SL_td" width="8%" align="center"><div id="SL_copy" title="Copy translation" class="SL_copy" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/copy_hand.png);"></div></td><td class="SL_td" width="8%" align="center"><div id="SL_bbl_font_patch" onclick="alert(&#39;Not available for dictionary&#39;)"></div><div id="SL_bbl_font" title="Font size" class="SL_bbl_font" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/font-off.png);"></div></td><td class="SL_td" width="8%" align="center"><div id="SL_TH" title="Translation history" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/history.png);"></div></td><td class="SL_td" width="18%"></td><td class="SL_td" width="8%" align="right"><div id="SL_pin" title="Pin pup-up bubble" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/pin-on.png);"></div></td></tr></table></div></div><div id="SL_shadow_translation_result" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/bg.png) rgb(255, 255, 255);"></div><div id="SL_player2"></div><div id="SL_alert100" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/bg2.png);">Text-to-speech function is limited to 100 characters</div><div id="SL_bbl_donate" title="Make a small contribution" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/donate2.png);"></div><div id="SL_Balloon_options" style="background: url(chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/img/util/bg3.png) rgb(255, 255, 255);"><a href="chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/html/options/options-bbl.html" target="_blank" class="SL_options" title="Show options">Options</a> : <a href="chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/html/options/history.html" target="_blank" class="SL_options" title="Translation history">History</a> : <a href="http://about.imtranslator.net/tutorials/presentations/imtranslator-for-chrome/" target="_blank" class="SL_options" title="ImTranslator Help">Help</a> : <a href="chrome-extension://noaijdpnepcgjemiklgfkcfbkokogabh/content/html/options/feedback.html" target="_blank" class="SL_options" title="Feedback">Feedback</a></div></div></div></body></html>

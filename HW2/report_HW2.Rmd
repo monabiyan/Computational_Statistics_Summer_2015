@@ -1,0 +1,176 @@
+---
+title: "Homework 2 Solution"
+author: "Mohsen Nabian"
+date: "5/28/2015"
+
+---
+
+1. 
+
+a. Write a function that calculates the mean of any numeric vector you give it, without using the built-in mean() function.
+
+```{r}
+calc_mean<-function(v)
+{
+    temp=0;
+    for (i in 1:length(v))
+    {
+      temp=temp+v[i];
+    }
+    ans=temp/length(v);
+    return(ans)
+    print(ans)
+}
+calc_mean(c(1,2,3,4))
+
+```
+b.Write a function that takes as its input a vector with four elements. If the sum of the first two elements is greater than the sum of the second two, the function returns the vector; otherwise it returns 0.
+```{r}
+check_vector<-function(v)
+{
+  if(length(v)!=4) stop(' The vector must have 4 elements!');
+  first_half=v[1]+v[2];
+  second_half=v[3]+v[4];
+  if (first_half>second_half) 
+    { 
+      return(v);
+      print(v);
+    }
+  else 
+    {
+      return(0);
+      print(0);
+    }
+}
+check_vector(c(1,2,3,4))
+check_vector(c(7,2,3,4))
+```
+
+c.Write a function that calculates the Fibonacci sequence up to the nth element, where n is any number input into your function (its argument). The Fibonacci sequence is: 1, 1, 2, 3, 5, 8, 13, 21. . . , ie, each element is the sum of the previous two elements. One way to do this is to start off with the first two
+elements, c(1,1) and set an internal variable to this sequence. Then write a loop that counts up to n, where for each new element, you first calculate it by adding the last two elements of the growing sequence, and then stick that new number onto the growing sequence using c(). When the loop is finished, the function should return the final vector of Fibonacci numbers.
+```{r}
+Fibonacci<-function(n)
+{
+  if (n==1 | n==2) 
+    {
+      return(1);
+    }
+  else  
+    {
+      return(Fibonacci(n-1)+Fibonacci(n-2));
+    }
+}
+Fibonacci_write<-function(n)
+{
+  fibvec <- numeric(n)
+  for (i in 1:n) 
+    {
+      fibvec[i]<-Fibonacci(i);
+    }
+  return(fibvec);
+  print(fibvec)
+}
+Fibonacci_write(10)
+```
+d.Create a 4x4 matrix of the numbers 1 through 16. Use apply to apply you function from (a) to each of the rows in your matrix.
+```{r}
+MAT = matrix(1:16,nrow=4,ncol=4);
+mean_MAT_row=apply(MAT,1,calc_mean);
+print(mean_MAT_row);
+```
+
+2. 
+
+a. Using the airquality dataset, constuct an aggregated dataset which shows the mean wind and ozone by month.
+
+```{r}
+ds1<-aggregate(cbind(Wind,Ozone) ~ Month, data=airquality,mean)
+ds1
+
+```
+
+b.Create the authors and books datasets following the example and data in the lecture, and then create a new data set by merging these two datasets by author, preserving all rows.
+
+```{r}
+authors <- data.frame(surname = c("Tukey", "Venables", "Tierney", "Ripley", "McNeil"), nationality = c("US", "Australia", "US", "UK", "Australia"),stringsAsFactors=FALSE);
+books <- data.frame(name = c("Tukey", "Venables", "Tierney","Ripley", "Ripley", "McNeil", "R Core"),title = c("Exploratory Data Analysis","Modern Applied Statistics ...","LISP-STAT","Spatial Statistics", "Stochastic Simulation","Interactive Data Analysis","An Introduction to R"),stringsAsFactors=FALSE);
+authors
+books
+bookmerge <- merge(authors, books, by.x="surname",by.y="name", all.x=TRUE, all.y=TRUE )
+```
+
+c.Take the following string and replace every instance of "to" or "To" with "2"
+"To be, or not to be -- that is the question:
+Whether 'tis nobler in the mind to suffer
+The slings and arrows of outrageous fortune,
+Or to take arms against a sea of troubles,
+And by opposing end them. To die -- to sleep --
+No more..."
+```{r}
+gout1 <- gsub("to","2","To be, or not to be -- that is the question: Whether 'tis nobler in the mind to suffer
+The slings and arrows of outrageous fortune, Or to take arms against a sea of troubles, 
+And by opposing end them. To die -- to sleep -- No more...");
+
+gout2<-gsub("To","2",gout1)
+gout2
+```
+
+3.
+
+a. Create a histogram using the base R graphics using some dataset or variable other than the one in the lessons. Always make sure your graph has well-labeled x and y axes and an explanatory title.
+
+
+```{r}
+setwd("C:/Users/monabiyan/SkyDrive/Summer 2015/Statistics/HW2")
+real_state<-read.table("realstate_CA.csv",header=TRUE,sep=",")
+head(real_state)
+
+hist(real_state$price,main="RealState price in California",xlab="Price",ylab="Count")
+```
+
+b. Create a scatter plot using the base R graphics, again with some variable other than the one in the lessons.
+```{r}
+
+plot(real_state$sq__ft,real_state$price,xlab="sq_ft",ylab="Price",main="Price for the sq area of residential area in CA")
+
+```
+
+
+
+
+
+
+c. Create a histogram using ggplot, using some new data. In this and the later plots, feel free to tinker with the settings using the examples in http://www.cookbook-r.com/Graphs/ to make it prettier.
+```{r}
+library(ggplot2)
+ggplot(data=real_state,aes(x=price)) + geom_histogram(fill="orange", colour="black") +xlab("Price") + ylab("Frequency")
+ggplot(data=real_state,aes(x=price)) +geom_density()
+ggsave("histogram.jpg",width=6,height=4)
+```
+
+
+
+
+d.Create a box plot using ggplot, using some new data.
+```{r}
+ggplot(data=real_state,aes(x=as.factor(beds),y=price)) + geom_boxplot(fill="green", colour="blue") +xlab("Number of rooms") + ylab("Price")
+ggsave("box_plot.jpg",width=6,height=4)
+```
+
+
+
+
+
+
+
+e.Create a scatter plot using ggplot, using some new data.
+```{r}
+ggplot(data=real_state,aes(x=sq__ft,y=price),fill=cond) + geom_point(colour="brown") +xlab("Area (sq_ft)") + ylab("Price")
+ggsave("scatter_plot.jpg",width=6,height=4)
+```
+
+
+
+
+
+

@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/84689/c2f1dc3277a74ea89b547f26779d85f1
+url: http://rpubs.com/monabiyan/84689
+when: 1433466616.45509

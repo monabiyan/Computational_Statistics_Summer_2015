@@ -1,0 +1,406 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<title>Some examples of using \(  \LaTeX \) in R Markdown documents</title>
+
+<base target="_blank"/>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+
+</head>
+
+<body>
+<h1>Some examples of using \(  \LaTeX \) in R Markdown documents</h1>
+
+<p>R Markdown allows you to mix text, R code, R output, R graphics, <strong>and mathematics</strong> in a single document.  The mathematics is done using a version of \(  \LaTeX \), the premiere mathematics typesetting program.  (Our textbook was done entirely in \(  \LaTeX \).</p>
+
+<h2>Getting in and out of \(  \LaTeX \) mode</h2>
+
+<p>You enter \(  \LaTeX \) mode using <code>$latex</code> (for inline mathematics) or <code>$$latex</code> (for displayed equations).  You get back out of \(  \LaTeX \) mode using either <code>$</code> or <code>$$</code>.</p>
+
+<h2>Some basic mathematics you might use</h2>
+
+<p>Commands in \(  \LaTeX \) are preceded by a backslash (<code>\</code>).  The simplest commands simply produce a symbol:</p>
+
+<table><thead>
+<tr>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>A \cup B</code> \(  \quad \)</td>
+<td>\(  A \cup B \)</td>
+</tr>
+<tr>
+<td><code>A \cap B</code></td>
+<td>\(  A \cap B \)</td>
+</tr>
+<tr>
+<td><code>x \in A</code></td>
+<td>\(  x \in A \)</td>
+</tr>
+<tr>
+<td><code>5 \pm 2</code></td>
+<td>\(  5 \pm 2 \)</td>
+</tr>
+<tr>
+<td><code>\log(x)</code></td>
+<td>\(  \log(x) \)</td>
+</tr>
+<tr>
+<td><code>\sin(x)</code></td>
+<td>\(  \sin(x) \)</td>
+</tr>
+</tbody></table>
+
+<p>Other commands take additional inputs (placed inside curly braces <code>{}</code>):</p>
+
+<table><thead>
+<tr>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>\sqrt{27}</code></td>
+<td>\(  \sqrt{27} \)</td>
+</tr>
+<tr>
+<td><code>\overline{x}</code></td>
+<td>\(  \overline{x} \)</td>
+</tr>
+<tr>
+<td><code>\frac{k}{n}</code></td>
+<td>\(  \frac{x}{n} \)</td>
+</tr>
+<tr>
+<td><code>\binom{k}{n}</code></td>
+<td>\(  \binom{k}{n} \)</td>
+</tr>
+<tr>
+<td><code>\frac{\partial f}{\partial x}</code> \(  \quad \)</td>
+<td>\(  \frac{\partial f}{\partial x} \)</td>
+</tr>
+</tbody></table>
+
+<p>The underscore (<code>_</code>) and carrot (<code>^</code>) have special uses in \(  \LaTeX \).  (Note the use of <code>\displaystyle</code> to get inline mathematics set with larger fonts and more vertical space.)</p>
+
+<table><thead>
+<tr>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>x^2</code></td>
+<td>\(  x^2 \)</td>
+</tr>
+<tr>
+<td><code>x_2</code></td>
+<td>\(  x_2 \)</td>
+</tr>
+<tr>
+<td><code>\lim_{x\to\infty}</code></td>
+<td>\(  \lim_{x \to \infty} \)</td>
+</tr>
+<tr>
+<td><code>\displaystyle \lim_{x\to\infty}</code></td>
+<td>\(  \displaystyle \lim_{x \to \infty} \)</td>
+</tr>
+<tr>
+<td><code>\int_0^{\infty} f(x) \; dx</code></td>
+<td>\(  \int_0^{\infty} f(x) \; dx \)</td>
+</tr>
+<tr>
+<td><code>\displaystyle \int_0^{\infty} f(x) \; dx</code>  \(  \quad \)</td>
+<td>\(  \displaystyle \int_0^{\infty} f(x) \; dx \)</td>
+</tr>
+</tbody></table>
+
+<h2>The Greek Alphabet</h2>
+
+<p>For those of you who don&#39;t know your Greek alphabet, it&#39;s time to learn it.  </p>
+
+<table><thead>
+<tr>
+<th>name</th>
+<th>symbol</th>
+<th>\(  \LaTeX \)</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>alpha</td>
+<td>\(  \alpha \ A \)</td>
+<td><code>\alpha</code> <code>A</code></td>
+</tr>
+<tr>
+<td>beta</td>
+<td>\(  \beta \ B \)</td>
+<td><code>\beta</code> <code>B</code></td>
+</tr>
+<tr>
+<td>gamma</td>
+<td>\(  \gamma \ \Gamma \)</td>
+<td><code>\gamma</code> <code>\Gamma</code></td>
+</tr>
+<tr>
+<td>delta</td>
+<td>\(  \delta \ \Delta \)</td>
+<td><code>\delta</code> <code>\Delta</code></td>
+</tr>
+<tr>
+<td>epsilon</td>
+<td>\(  \epsilon \ E \)</td>
+<td><code>\epsilon</code> <code>E</code></td>
+</tr>
+<tr>
+<td>(epsilon)</td>
+<td>\(  \varepsilon \  E \)</td>
+<td><code>\varepsilon</code></td>
+</tr>
+<tr>
+<td>zeta</td>
+<td>\(  \zeta \ Z \)</td>
+<td><code>\zeta</code> <code>Z</code></td>
+</tr>
+<tr>
+<td>eta</td>
+<td>\(  \eta \ H \)</td>
+<td><code>\eta</code> <code>\Eta</code></td>
+</tr>
+<tr>
+<td>theta</td>
+<td>\(  \theta \ \Theta \)</td>
+<td><code>\theta</code> <code>\Theta</code></td>
+</tr>
+<tr>
+<td>iota</td>
+<td>\(  \iota \ I \)</td>
+<td><code>\iota</code> <code>I</code></td>
+</tr>
+<tr>
+<td>kappa</td>
+<td>\(  \kappa \ K \)</td>
+<td><code>\kappa</code> <code>K</code></td>
+</tr>
+<tr>
+<td>lambda</td>
+<td>\(  \lambda \ \Lambda \)</td>
+<td><code>\lambda</code> <code>\Lambda</code></td>
+</tr>
+<tr>
+<td>mu</td>
+<td>\(  \mu \  M \)</td>
+<td><code>\mu</code> <code>M</code></td>
+</tr>
+<tr>
+<td>nu</td>
+<td>\(  \nu \ N \)</td>
+<td><code>\nu</code> <code>N</code></td>
+</tr>
+<tr>
+<td>xi</td>
+<td>\(  \xi \ \Xi \)</td>
+<td><code>\xi</code> <code>\Xi</code></td>
+</tr>
+<tr>
+<td>omicron</td>
+<td>\(  \omicron \ O \)</td>
+<td><code>\omicron</code> <code>O</code></td>
+</tr>
+<tr>
+<td>pi</td>
+<td>\(  \pi \ \Pi \)</td>
+<td><code>\pi</code> <code>\Pi</code></td>
+</tr>
+<tr>
+<td>rho</td>
+<td>\(  \rho \ P \)</td>
+<td><code>\rho</code> <code>P</code></td>
+</tr>
+<tr>
+<td>sigma</td>
+<td>\(  \sigma \ \Sigma \)</td>
+<td><code>\sigma</code> <code>\Sigma</code></td>
+</tr>
+<tr>
+<td>tau</td>
+<td>\(  \tau \ T \)</td>
+<td><code>\tau</code> <code>\Tau</code></td>
+</tr>
+<tr>
+<td>upsilon</td>
+<td>\(  \upsilon \ Y \)</td>
+<td><code>\upsilon</code> <code>Y</code></td>
+</tr>
+<tr>
+<td>phi</td>
+<td>\(  \phi \ \Phi \)</td>
+<td><code>\phi</code> <code>\Phi</code></td>
+</tr>
+<tr>
+<td>(phi)</td>
+<td>\(  \varphi \)</td>
+<td><code>\varphi</code></td>
+</tr>
+<tr>
+<td>chi</td>
+<td>\(  \chi \ X \)</td>
+<td><code>\chi</code> <code>X</code></td>
+</tr>
+<tr>
+<td>psi</td>
+<td>\(  \psi \ \Psi \)</td>
+<td><code>\psi</code> <code>\Psi</code></td>
+</tr>
+<tr>
+<td>omega</td>
+<td>\(  \omega \ \Omega \)</td>
+<td><code>\omega</code> <code>\Omega</code></td>
+</tr>
+</tbody></table>
+
+</body>
+
+</html>
+
+
